@@ -1,0 +1,19 @@
+{
+  "name": "explore",
+  "version": "0.0.0",
+  "main": "src/app.js",
+  "repository": {
+    "url": "git@github.com:erik/explore.git",
+    "type": "git"
+  },
+  "author": "Erik Price <github@erikprice.net>",
+  "license": "ISC",
+  "dependencies": {
+    "css-loader": "^0.25.0",
+    "gpx-parse": "^0.10.4",
+    "jquery": "^3.1.1",
+    "leaflet": "^1.0.1",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.13.2"
+  }
+}
