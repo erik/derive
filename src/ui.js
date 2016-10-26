@@ -1,8 +1,8 @@
-var jquery = require('jquery');
-var leaflet = require('leaflet');
+var jquery = require('jquery'),
+    leaflet = require('leaflet');
 
-var map = require('./map');
-var gpx = require('./gpx');
+var map = require('./map'),
+    gpx = require('./gpx');
 
 
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
@@ -26,12 +26,11 @@ function handleFileSelect(evt) {
                     console.log('here we go');
                     polyLines.forEach(line => line.addTo(map));
                     console.log('done');
-
-                    $('#modal').hide();
                 }
             });
 
         };
+
         reader.readAsText(files[i]);
     }
 }
