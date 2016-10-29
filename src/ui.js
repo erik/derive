@@ -2,34 +2,35 @@ var jquery = require('jquery'),
     leaflet = require('leaflet');
 
 var map = require('./map'),
-    gpx = require('./gpx');
+    parseGPX = require('./gpx');
 
 
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
-function handleFileSelect(evt) {
+function handleFileSelect(map, evt) {
     evt.stopPropagation();
     evt.preventDefault();
 
-    var polyLines = [];
-
+    var tracks = [];
+    var pts = [];
     var files = evt.dataTransfer.files;
+
     for (var i = 0; i < files.length; ++i) {
         var reader = new FileReader();
-        reader.onload = (event) => {
-            readGPXFile(map, event, (line) => {
-                polyLines.push(line);
 
-                console.log('lines are', polyLines, files.length);
+        reader.onload = (event) => parseGPX(event.target.result, (err, track) => {
+            if (err) { return alert(err); }
 
-                // If we've processed all the files.
-                if (polyLines.length === files.length) {
-                    console.log('here we go');
-                    polyLines.forEach(line => line.addTo(map));
-                    console.log('done');
-                }
-            });
+            tracks.push(1);
+            pts.concat(track.points);
 
-        };
+            // If we've processed all the files, add them to the map in one go.
+            if (tracks.length === files.length) {
+                //tracks.forEach(track => map.addTrack(track));
+                console.log('add');
+                map.addTrack({name: 'foo', pts});
+                console.log('done');
+            }
+        });
 
         reader.readAsText(files[i]);
     }
@@ -37,18 +38,21 @@ function handleFileSelect(evt) {
 
 
 function handleDragOver(evt) {
+    evt.dataTransfer.dropEffect = 'copy';
     evt.stopPropagation();
     evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
 }
 
 
-function initialize() {
+function initialize(map) {
+    console.log('init');
+
     window.addEventListener('dragover', (e) => {
         handleDragOver(e);
     }, false);
 
     window.addEventListener('drop', (e) => {
+        console.log('drop', e);
         handleFileSelect(map, e);
     } , false);
 

@@ -1,21 +1,6 @@
-var jquery = require('jquery');
-var leaflet = require('leaflet');
+var jquery = require('jquery'),
+    leaflet = require('leaflet');
 
-var _map;
-
-
-function initialize() {
-    _map = leaflet.map('background-map', {
-        center: [34.0522, -118.243],
-        zoom: 10
-    });
-
-    leaflet.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-        subdomains: 'abcd',
-        maxZoom: 19
-    }).addTo(_map);
-}
 
 // Los Angeles is the center of the universe
 const INIT_COORDS = [34.0522, -118.243];
@@ -39,7 +24,7 @@ const DEFAULT_OPTIONS = {
     lineOptions: {
         color: '#0CB1E8',
         weight: 3,
-        opacity: 0.3,
+        opacity: 1, //0.3,
         smoothFactor: 3
     }
 };
@@ -54,7 +39,7 @@ class GpxMap {
             zoom: 10
         });
 
-        this.switchTheme(options.theme);
+        this.switchTheme(this.options.theme);
         this.requestBrowserLocation();
     }
 
@@ -73,13 +58,12 @@ class GpxMap {
         });
     }
 
-    addLineSegment(points) {
-        // TODO:
+    addTrack(track) {
+        console.log('adding track', track.name);
+        var line = leaflet.polyline(track.points, this.options.lineOptions);
+        line.addTo(this.map);
     }
 
 }
 
-module.exports = {
-    initialize: initialize,
-    map: _map
-};
+module.exports = GpxMap;

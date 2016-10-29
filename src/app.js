@@ -2,13 +2,13 @@ require('../style.css');
 
 var jquery = require('jquery');
 
-var map = require('./map');
-var ui = require('./ui');
+var GpxMap = require('./map'),
+    ui = require('./ui');
 
 
 function app() {
-    map.initialize();
-    ui.initialize();
+    var map = new GpxMap();
+    ui.initialize(map);
 }
 
 jquery(document).ready(app);
