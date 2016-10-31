@@ -1,5 +1,7 @@
 # dérive
 
+![los angeles.](http://i.imgur.com/Asf744D.jpg)
+
 Generate a heatmap from GPX data.
 
 Drag and drop one or more GPX files into the window.
