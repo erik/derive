@@ -23,9 +23,9 @@ const DEFAULT_OPTIONS = {
     theme: 'CARTO_DARK',
     lineOptions: {
         color: '#0CB1E8',
-        weight: 3,
-        opacity: 1, //0.3,
-        smoothFactor: 3
+        weight: 1,
+        opacity: 0.5,
+        smoothFactor: 1
     }
 };
 
@@ -53,7 +53,6 @@ class GpxMap {
     // Try to pull geo location from browser and center the map
     requestBrowserLocation() {
         navigator.geolocation.getCurrentPosition((pos) => {
-            // TODO: this 'this' probably isn't that 'this'.
             this.map.panTo([pos.coords.latitude, pos.coords.longitude]);
         });
     }
@@ -65,5 +64,6 @@ class GpxMap {
     }
 
 }
+
 
 module.exports = GpxMap;

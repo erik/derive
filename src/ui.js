@@ -11,7 +11,6 @@ function handleFileSelect(map, evt) {
     evt.preventDefault();
 
     var tracks = [];
-    var pts = [];
     var files = evt.dataTransfer.files;
 
     for (var i = 0; i < files.length; ++i) {
@@ -20,14 +19,11 @@ function handleFileSelect(map, evt) {
         reader.onload = (event) => parseGPX(event.target.result, (err, track) => {
             if (err) { return alert(err); }
 
-            tracks.push(1);
-            pts.concat(track.points);
+            tracks.push(track);
 
             // If we've processed all the files, add them to the map in one go.
             if (tracks.length === files.length) {
-                //tracks.forEach(track => map.addTrack(track));
-                console.log('add');
-                map.addTrack({name: 'foo', pts});
+                tracks.forEach(t => map.addTrack(t));
                 console.log('done');
             }
         });
