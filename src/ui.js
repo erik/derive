@@ -55,11 +55,8 @@ function handleDragOver(evt) {
 
 function buildUploadModal(numFiles) {
     function getModalContent(numLoaded) {
-        return modalContent = `
-<h1>Reading GPX files...</h1>
-
-<span id="">${numLoaded} loaded of <b>${numFiles}</b>
-`;
+        return `<h1>Reading GPX files...</h1>
+<span id="">${numLoaded} loaded of <b>${numFiles}</b>`;
     }
 
     var modal = picoModal({
@@ -78,17 +75,43 @@ function buildUploadModal(numFiles) {
 }
 
 
-// TODO: write me.
-function showHelpModal() {}
+function showHelpModal() {
+    var modalContent = `
+<h1>dérive.</h1>
+
+<p>
+In a dérive one or more persons during a certain period drop their
+relations, their work and leisure activities, and all their other
+usual motives for movement and action, and let themselves be drawn by
+the attractions of the terrain and the encounters they find there.
+
+<a href="http://library.nothingness.org/articles/SI/en/display/314"><sup>1</sup></a>
+</p>
+
+<h4>Help:</h4>
+<p>There is no help.</p>
+`
+
+    var modal = picoModal({
+        content: modalContent,
+        overlayStyles: (styles) => { styles.opacity = 0.01; }
+    });
+
+    modal.show();
+
+    return modal;
+}
 
 
 function initialize(map) {
-    console.log('init');
-
-    showHelpModal();
+    modal = showHelpModal();
 
     window.addEventListener('dragover', handleDragOver, false);
-    window.addEventListener('drop', e => handleFileSelect(map, e) , false);
+
+    window.addEventListener('drop', e => {
+        modal.destroy();
+        handleFileSelect(map, e);
+    }, false);
 }
 
 
