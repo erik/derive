@@ -42,7 +42,7 @@ function handleFileSelect(map, evt) {
         reader.readAsBinaryString(files[fileIndex++]);
     }
 
-    return loadNextFile();
+    loadNextFile();
 }
 
 
@@ -56,7 +56,7 @@ function handleDragOver(evt) {
 function buildUploadModal(numFiles) {
     function getModalContent(numLoaded) {
         return modalContent = `
-<h1>Parsing GPX files...</h1>
+<h1>Reading GPX files...</h1>
 
 <span id="">${numLoaded} loaded of <b>${numFiles}</b>
 `;
@@ -66,8 +66,9 @@ function buildUploadModal(numFiles) {
         content: getModalContent(0),
         closeButton: false,
         escCloses: false,
+        overlayClose: false,
         overlayStyles: (styles) => { styles.opacity = 0.1; }
-    }).afterClose(m => m.destroy());
+    });
 
     modal.progress = (loaded) => {
         modal.modalElem().innerHTML = getModalContent(loaded);

@@ -1,9 +1,9 @@
 {
-  "name": "explore",
+  "name": "derive",
   "version": "0.0.0",
   "main": "src/app.js",
   "repository": {
-    "url": "git@github.com:erik/explore.git",
+    "url": "git@github.com:erik/derive.git",
     "type": "git"
   },
   "author": "Erik Price <github@erikprice.net>",
