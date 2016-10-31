@@ -4,6 +4,8 @@ Generate a heatmap from GPX data.
 
 Drag and drop one or more GPX files into the window.
 
+http://library.nothingness.org/articles/SI/en/display/314
+
 ## Strava
 
 If you use Strava, go to
