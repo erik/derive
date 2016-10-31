@@ -985,6 +985,10 @@ leaflet:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/leaflet/-/leaflet-1.0.1.tgz#5868c389b556cd85481198ff8bfe59a8de0932db"
 
+leaflet-providers:
+  version "1.1.15"
+  resolved "https://registry.yarnpkg.com/leaflet-providers/-/leaflet-providers-1.1.15.tgz#5341a02978e2680f84e3d8618bf98f870258129c"
+
 loader-utils@^0.2.11, loader-utils@^0.2.7, loader-utils@~0.2.2:
   version "0.2.16"
   resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-0.2.16.tgz#f08632066ed8282835dff88dfb52704765adee6d"

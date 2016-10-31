@@ -24,7 +24,6 @@ function handleFileSelect(map, evt) {
             // If we've processed all the files, add them to the map in one go.
             if (tracks.length === files.length) {
                 tracks.forEach(t => map.addTrack(t));
-                console.log('done');
             }
         });
 
@@ -43,14 +42,8 @@ function handleDragOver(evt) {
 function initialize(map) {
     console.log('init');
 
-    window.addEventListener('dragover', (e) => {
-        handleDragOver(e);
-    }, false);
-
-    window.addEventListener('drop', (e) => {
-        console.log('drop', e);
-        handleFileSelect(map, e);
-    } , false);
+    window.addEventListener('dragover', handleDragOver, false);
+    window.addEventListener('drop', e => handleFileSelect(map, e) , false);
 
     window.addEventListener('dragstart', (_) => {
         console.log('modal show');

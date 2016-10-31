@@ -12,6 +12,7 @@
     "css-loader": "^0.25.0",
     "jquery": "^3.1.1",
     "leaflet": "^1.0.1",
+    "leaflet-providers": "^1.1.15",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.2",
     "xml2js": "^0.4.17"
