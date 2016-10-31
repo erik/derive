@@ -17,28 +17,32 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    function updateMap() {
-        for (var i = 0; i < tracks.length; ++i) {
-            map.addTrack(tracks[i]);
-            modal.progress(i + 1);
+    var fileIndex = 0;
+
+    function loadNextFile() {
+        if (fileIndex >= files.length) {
+            tracks.forEach(t => map.addTrack(t));
+            return modal.destroy();
         }
 
-        modal.destroy();
-    }
-
-    for (var i = 0; i < files.length; ++i) {
         var reader = new FileReader();
-        reader.onload = (event) => parseGPX(event.target.result, (err, track) => {
-            if (err) { return alert(err); }
+        reader.onload = (event) => {
+            parseGPX(event.target.result, (err, track) => {
+                // TODO: Make an error modal
+                if (err) return window.alert(err);
 
-            tracks.push(track);
+                tracks.push(track);
+                modal.progress(fileIndex);
 
-            // If we've processed all the files, add them to the map in one go.
-            if (tracks.length === files.length) return updateMap();
-        });
+                // do the next file, but give the UI time to update.
+                window.setTimeout(loadNextFile, 1);
+            });
+        };
 
-        reader.readAsText(files[i]);
+        reader.readAsBinaryString(files[fileIndex++]);
     }
+
+    return loadNextFile();
 }
 
 
@@ -64,10 +68,6 @@ function buildUploadModal(numFiles) {
         escCloses: false,
         overlayStyles: (styles) => { styles.opacity = 0.1; }
     }).afterClose(m => m.destroy());
-
-    var modalElem = modal.modalElem();
-    modal.show();
-    console.log(modalElem);
 
     modal.progress = (loaded) => {
         modal.modalElem().innerHTML = getModalContent(loaded);
