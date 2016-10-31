@@ -1,5 +1,4 @@
-var jquery = require('jquery'),
-    leaflet = require('leaflet'),
+var leaflet = require('leaflet'),
     _ = require('leaflet-providers');
 
 

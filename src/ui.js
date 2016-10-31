@@ -90,7 +90,7 @@ the attractions of the terrain and the encounters they find there.
 
 <h4>Help:</h4>
 <p>There is no help.</p>
-`
+`;
 
     var modal = picoModal({
         content: modalContent,
