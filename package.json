@@ -13,6 +13,7 @@
     "jquery": "^3.1.1",
     "leaflet": "^1.0.1",
     "leaflet-providers": "^1.1.15",
+    "picomodal": "^3.0.0",
     "style-loader": "^0.13.1",
     "webpack": "^1.13.2",
     "xml2js": "^0.4.17"
