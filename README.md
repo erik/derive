@@ -4,7 +4,8 @@
 
 Generate a heatmap from GPX data.
 
-Drag and drop one or more GPX files into the window.
+Drag and drop one or more GPX files into the window. No data is ever uploaded,
+everything is done client side.
 
 http://library.nothingness.org/articles/SI/en/display/314
 

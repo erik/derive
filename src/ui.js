@@ -14,6 +14,9 @@ in GPX format on your <a href="https://www.strava.com/settings/profile">profile
 page</a> and clicking "Download all your activities."
 </p>
 
+<p>All processing happens in your browser. Your files will not be uploaded or
+stored anywhere.</p>
+
 <p><em>
 In a dérive one or more persons during a certain period drop their
 relations, their work and leisure activities, and all their other
