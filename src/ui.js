@@ -1,9 +1,6 @@
-var jquery = require('jquery'),
-    leaflet = require('leaflet'),
-    picoModal = require('picoModal');
+var picoModal = require('picoModal');
 
-var map = require('./map'),
-    parseGPX = require('./gpx');
+var parseGPX = require('./gpx');
 
 
 const MODAL_CONTENT = {
@@ -25,7 +22,7 @@ the attractions of the terrain and the encounters they find there.
 
 <a href="http://library.nothingness.org/articles/SI/en/display/314"><sup>1</sup></a>
 </em></p>`
-}
+};
 
 
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
@@ -110,7 +107,7 @@ function showModal(type) {
 
 
 function initialize(map) {
-    modal = showModal('help');
+    var modal = showModal('help');
 
     window.addEventListener('dragover', handleDragOver, false);
 
