@@ -9,6 +9,9 @@
   "author": "Erik Price <github@erikprice.net>",
   "license": "MIT",
   "dependencies": {
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.7",
+    "babel-preset-es2015": "^6.18.0",
     "css-loader": "^0.25.0",
     "jquery": "^3.1.1",
     "leaflet": "^1.0.1",
