@@ -6,6 +6,25 @@ var map = require('./map'),
     parseGPX = require('./gpx');
 
 
+const MODAL_CONTENT = {
+    help: `<h1>dérive</h1>
+<h4>Drag and drop one or more GPX files here</h4>
+<p>If you use Strava, you can obtain a ZIP file of your activity data
+in GPX format on your <a href="https://www.strava.com/settings/profile">profile
+page</a> and clicking "Download all your activities."
+</p>
+
+<p><em>
+In a dérive one or more persons during a certain period drop their
+relations, their work and leisure activities, and all their other
+usual motives for movement and action, and let themselves be drawn by
+the attractions of the terrain and the encounters they find there.
+
+<a href="http://library.nothingness.org/articles/SI/en/display/314"><sup>1</sup></a>
+</em></p>`
+}
+
+
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
 function handleFileSelect(map, evt) {
     evt.stopPropagation();
@@ -75,25 +94,9 @@ function buildUploadModal(numFiles) {
 }
 
 
-function showHelpModal() {
-    var modalContent = `
-<h1>dérive.</h1>
-
-<p>
-In a dérive one or more persons during a certain period drop their
-relations, their work and leisure activities, and all their other
-usual motives for movement and action, and let themselves be drawn by
-the attractions of the terrain and the encounters they find there.
-
-<a href="http://library.nothingness.org/articles/SI/en/display/314"><sup>1</sup></a>
-</p>
-
-<h4>Help:</h4>
-<p>There is no help.</p>
-`;
-
+function showModal(type) {
     var modal = picoModal({
-        content: modalContent,
+        content: MODAL_CONTENT[type],
         overlayStyles: (styles) => { styles.opacity = 0.01; }
     });
 
@@ -104,7 +107,7 @@ the attractions of the terrain and the encounters they find there.
 
 
 function initialize(map) {
-    modal = showHelpModal();
+    modal = showModal('help');
 
     window.addEventListener('dragover', handleDragOver, false);
 

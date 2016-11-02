@@ -1,3 +1,8 @@
+* {
+    font-family: Helvetica Neue, Segoe UI, Helvetica, arial, sans-serif;
+    line-height: 1.2;
+}
+
 #background-map {
     position: absolute;
     top: 0;
@@ -5,20 +10,4 @@
     bottom: 0;
     left: 0;
     z-index: -1;
-}
-
-#modal {
-    margin: auto;
-    width: 960px;
-    height: 500px;
-    background-color: white;
-    z-index: 1;
-}
-
-#dropzone {
-    background-color: #c0c0c0;
-    text-align: center;
-    width: 70%;
-    height: 70%;
-    margin: auto;
 }
