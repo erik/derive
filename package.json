@@ -15,6 +15,8 @@
     "css-loader": "^0.25.0",
     "jquery": "^3.1.1",
     "leaflet": "^1.0.1",
+    "leaflet-easybutton": "^2.2.0",
+    "leaflet-image": "^0.4.0",
     "leaflet-providers": "^1.1.15",
     "picomodal": "^3.0.0",
     "style-loader": "^0.13.1",

@@ -1,5 +1,7 @@
 import leaflet from 'leaflet'
+import leafletImage from 'leaflet-image'
 import 'leaflet-providers'
+import 'leaflet-easybutton'
 
 
 // Los Angeles is the center of the universe
@@ -22,8 +24,22 @@ export default class GpxMap {
 
         this.map = leaflet.map('background-map', {
             center: INIT_COORDS,
-            zoom: 10
+            zoom: 10,
+            preferCanvas: true
         })
+
+        leaflet.easyButton({
+            id: 'screenshot',
+            type: 'animate',
+            states: [{
+                icon: 'fa-camera fa-lg',
+                stateName: 'default',
+                title: 'Export as png',
+                onClick: (_btn, map) => {
+                    this.screenshot()
+                }
+            }]
+        }).addTo(this.map)
 
         this.switchTheme(this.options.theme)
         this.requestBrowserLocation()
@@ -31,7 +47,9 @@ export default class GpxMap {
 
     switchTheme(themeName) {
         let tileLayer = leaflet.tileLayer.provider(themeName)
-        tileLayer.addTo(this.map)
+        tileLayer.addTo(this.map, {
+            detectRetina: true
+        })
     }
 
     // Try to pull geo location from browser and center the map
@@ -47,4 +65,14 @@ export default class GpxMap {
         line.addTo(this.map)
     }
 
+    screenshot() {
+        leafletImage(this.map, (err, canvas) => {
+            if (err) return window.alert(err)
+
+            let a = document.createElement('a')
+            a.href = canvas.toDataURL()
+            a.download = "derive-export.png"
+            a.click()
+        })
+    }
 }
