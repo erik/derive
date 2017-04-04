@@ -86,14 +86,10 @@ export default class GpxMap {
     }
 
     screenshot(fmt) {
-        console.log('screenshot', fmt)
-        console.log(this.map)
-
         leafletImage(this.map, (err, canvas) => {
             if (err) return window.alert(err)
 
             let anchor = document.createElement('a')
-
 
             if (fmt == 'png') {
                 anchor.href = canvas.toDataURL()
