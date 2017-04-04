@@ -92,16 +92,31 @@ export default class GpxMap {
             let anchor = document.createElement('a')
 
             if (fmt == 'png') {
+                // TODO: might need to use blob URL here as well.
                 anchor.href = canvas.toDataURL()
                 anchor.download = 'derive-export.png'
+                anchor.click()
             } else if (fmt == 'svg') {
+                let origin = this.map.getBounds(),
+                    top = origin.getNorthWest(),
+                    bot = origin.getSouthEast()
+
+                const width = bot.lng - top.lng,
+                      height = top.lat - bot.lat,
+                      scale = 1000
+
                 let paths = this.tracks
-                        .map(trk => trk.getLatLngs())
-                        .map(coord => coord.map(c => this.map.latLngToLayerPoint(c)))
-                        .map(pts => leaflet.SVG.pointsToPath([pts], false))
+                    .map(trk => trk.getLatLngs())
+                    .map(coord => coord.map(c => ({
+                      x: (c.lng - top.lng) * scale,
+                      y: (top.lat - c.lat) * scale,
+                    })))
+                    .map(pts => leaflet.SVG.pointsToPath([pts], false))
 
                 let svg = leaflet.SVG.create('svg')
                 let root = leaflet.SVG.create('g')
+
+                svg.setAttribute('viewBox', `0 0 ${scale * width} ${scale * height}`)
 
                 let opts = this.options.lineOptions
 
@@ -124,11 +139,11 @@ export default class GpxMap {
 
                 let xml = (new XMLSerializer()).serializeToString(svg)
                 anchor.download = 'derive-export.svg'
-                anchor.href = 'data:application/octet-stream;base64,' + btoa(xml);
-            }
 
-            // Perform the download
-            return anchor.click()
+                let blob = new Blob([xml], {type: 'application/octet-stream'})
+                anchor.href = URL.createObjectURL(blob)
+                anchor.click()
+            }
         })
     }
 }
