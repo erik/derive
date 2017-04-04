@@ -3,19 +3,12 @@ import leafletImage from 'leaflet-image'
 import 'leaflet-providers'
 import 'leaflet-easybutton'
 
+import {buildSettingsModal} from './ui'
+
 
 // Los Angeles is the center of the universe
 const INIT_COORDS = [34.0522, -118.243]
 
-const AVAILABLE_THEMES = [
-    'CartoDB.DarkMatter',
-    'CartoDB.DarkMatterNoLabels',
-    'CartoDB.Positron',
-    'CartoDB.PositronNoLabels',
-    'Stamen.Toner',
-    'Stamen.TonerLite',
-    'Stamen.TonerBackground',
-]
 
 const DEFAULT_OPTIONS = {
     theme: 'CartoDB.DarkMatter',
@@ -59,6 +52,20 @@ export default class GpxMap {
             }]
         }).addTo(this.map)
 
+        leaflet.easyButton({
+            type: 'animate',
+            states: [{
+                icon: 'fa-sliders fa-lg',
+                stateName: 'default',
+                title: 'Export as svg',
+                onClick: (_btn, map) => {
+                    buildSettingsModal(this.options, (opts) => {
+                        this.updateOptions(opts)
+                    }).show()
+                }
+            }]
+        }).addTo(this.map)
+
         this.switchTheme(this.options.theme)
         this.requestBrowserLocation()
     }
@@ -69,6 +76,24 @@ export default class GpxMap {
 
         this.mapTiles = leaflet.tileLayer.provider(themeName)
         this.mapTiles.addTo(this.map, {detectRetina: true})
+    }
+
+    updateOptions(opts) {
+        if (opts.theme !== this.options.theme) {
+            this.switchTheme(opts.theme)
+        }
+
+        this.tracks.forEach(t => {
+            t.setStyle({
+                color: opts.lineOptions.color,
+                weight: opts.lineOptions.weight,
+                opacity: opts.lineOptions.opacity
+            })
+
+            t.redraw()
+        })
+
+        this.options = opts
     }
 
     // Try to pull geo location from browser and center the map
@@ -108,8 +133,8 @@ export default class GpxMap {
                 let paths = this.tracks
                     .map(trk => trk.getLatLngs())
                     .map(coord => coord.map(c => ({
-                      x: (c.lng - top.lng) * scale,
-                      y: (top.lat - c.lat) * scale,
+                        x: (c.lng - top.lng) * scale,
+                        y: (top.lat - c.lat) * scale,
                     })))
                     .map(pts => leaflet.SVG.pointsToPath([pts], false))
 

@@ -17,8 +17,9 @@ function extractTrack(gpx) {
     let points = gpx.trk[0].trkseg[0].trkpt.map(trkpt => ({
         lat: parseFloat(trkpt.$.lat),
         lng: parseFloat(trkpt.$.lon),
-        elev: parseFloat(trkpt.ele) || 0,
-        time: new Date(trkpt.time || '0')
+        // These are available to us, but are currently unused
+        // elev: parseFloat(trkpt.ele) || 0,
+        // time: new Date(trkpt.time || '0')
     }))
 
     return {
