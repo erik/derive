@@ -39,7 +39,10 @@ function handleFileSelect(map, evt) {
 
     function loadNextFile() {
         if (fileIndex >= files.length) {
-            tracks.forEach(t => map.addTrack(t))
+            tracks.forEach(t => {
+                console.log('Adding track:', t.name)
+                map.addTrack(t.points)
+            })
             return modal.destroy()
         }
 
