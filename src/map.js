@@ -117,10 +117,12 @@ export default class GpxMap {
             let anchor = document.createElement('a')
 
             if (fmt == 'png') {
-                // TODO: might need to use blob URL here as well.
-                anchor.href = canvas.toDataURL()
                 anchor.download = 'derive-export.png'
-                anchor.click()
+
+                canvas.toBlob(blob => {
+                    anchor.href = URL.createObjectURL(blob)
+                    anchor.click()
+                })
             } else if (fmt == 'svg') {
                 let origin = this.map.getBounds(),
                     top = origin.getNorthWest(),
