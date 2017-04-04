@@ -1,6 +1,5 @@
-var picoModal = require('picoModal');
-
-var parseGPX = require('./gpx');
+import picoModal from 'picoModal'
+import parseGPX from './gpx'
 
 
 const MODAL_CONTENT = {
@@ -22,102 +21,97 @@ the attractions of the terrain and the encounters they find there.
 
 <a href="http://library.nothingness.org/articles/SI/en/display/314"><sup>1</sup></a>
 </em></p>`
-};
+}
 
 
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
 function handleFileSelect(map, evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
+    evt.stopPropagation()
+    evt.preventDefault()
 
-    var tracks = [];
-    var files = evt.dataTransfer.files;
-    var modal = buildUploadModal(files.length);
+    let tracks = []
+    let files = evt.dataTransfer.files
+    let modal = buildUploadModal(files.length)
 
-    modal.show();
+    modal.show()
 
-    var fileIndex = 0;
+    let fileIndex = 0
 
     function loadNextFile() {
         if (fileIndex >= files.length) {
-            tracks.forEach(t => map.addTrack(t));
-            return modal.destroy();
+            tracks.forEach(t => map.addTrack(t))
+            return modal.destroy()
         }
 
-        var reader = new FileReader();
+        let reader = new FileReader()
         reader.onload = (event) => {
             parseGPX(event.target.result, (err, track) => {
                 // TODO: Make an error modal
-                if (err) return window.alert(err);
+                if (err) return window.alert(err)
 
-                tracks.push(track);
-                modal.progress(fileIndex);
+                tracks.push(track)
+                modal.progress(fileIndex)
 
                 // do the next file, but give the UI time to update.
-                window.setTimeout(loadNextFile, 1);
-            });
-        };
+                window.setTimeout(loadNextFile, 1)
+            })
+        }
 
-        reader.readAsBinaryString(files[fileIndex++]);
+        reader.readAsBinaryString(files[fileIndex++])
     }
 
-    loadNextFile();
+    loadNextFile()
 }
 
 
 function handleDragOver(evt) {
-    evt.dataTransfer.dropEffect = 'copy';
-    evt.stopPropagation();
-    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'
+    evt.stopPropagation()
+    evt.preventDefault()
 }
 
 
 function buildUploadModal(numFiles) {
     function getModalContent(numLoaded) {
         return `<h1>Reading GPX files...</h1>
-<span id="">${numLoaded} loaded of <b>${numFiles}</b>`;
+<span id="">${numLoaded} loaded of <b>${numFiles}</b>`
     }
 
-    var modal = picoModal({
+    let modal = picoModal({
         content: getModalContent(0),
         closeButton: false,
         escCloses: false,
         overlayClose: false,
-        overlayStyles: (styles) => { styles.opacity = 0.1; }
-    });
+        overlayStyles: (styles) => { styles.opacity = 0.1 }
+    })
 
     modal.progress = (loaded) => {
-        modal.modalElem().innerHTML = getModalContent(loaded);
-    };
+        modal.modalElem().innerHTML = getModalContent(loaded)
+    }
 
-    return modal;
+    return modal
 }
 
 
 function showModal(type) {
-    var modal = picoModal({
+    let modal = picoModal({
         content: MODAL_CONTENT[type],
-        overlayStyles: (styles) => { styles.opacity = 0.01; }
-    });
+        overlayStyles: (styles) => { styles.opacity = 0.01 }
+    })
 
-    modal.show();
+    modal.show()
 
-    return modal;
+    return modal
 }
 
 
-function initialize(map) {
-    var modal = showModal('help');
+export function initialize(map) {
+    let modal = showModal('help')
 
-    window.addEventListener('dragover', handleDragOver, false);
+    window.addEventListener('dragover', handleDragOver, false)
 
     window.addEventListener('drop', e => {
-        modal.destroy();
-        handleFileSelect(map, e);
-    }, false);
+        modal.destroy()
+        handleFileSelect(map, e)
+    }, false)
 }
-
-
-module.exports = {
-    initialize: initialize
-};

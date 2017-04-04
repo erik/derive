@@ -1,14 +1,14 @@
-require('../style.css');
+import '../style.css'
 
-var jquery = require('jquery');
+import jquery from 'jquery'
 
-var GpxMap = require('./map'),
-    ui = require('./ui');
+import GpxMap from './map'
+import {initialize} from './ui'
 
 
 function app() {
-    var map = new GpxMap();
-    ui.initialize(map);
+    let map = new GpxMap()
+    initialize(map)
 }
 
-jquery(document).ready(app);
+jquery(document).ready(app)
