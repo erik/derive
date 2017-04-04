@@ -111,7 +111,10 @@ export function initialize(map) {
     window.addEventListener('dragover', handleDragOver, false)
 
     window.addEventListener('drop', e => {
-        modal.destroy()
+        if (!modal.destroyed) {
+            modal.destroy()
+            modal.destroyed = true
+        }
         handleFileSelect(map, e)
     }, false)
 }
