@@ -57,7 +57,7 @@ export default class GpxMap {
             states: [{
                 icon: 'fa-sliders fa-lg',
                 stateName: 'default',
-                title: 'Export as svg',
+                title: 'Open settings dialog',
                 onClick: (_btn, map) => {
                     buildSettingsModal(this.options, (opts) => {
                         this.updateOptions(opts)
