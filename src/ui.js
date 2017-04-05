@@ -7,9 +7,17 @@ const AVAILABLE_THEMES = [
     'CartoDB.DarkMatterNoLabels',
     'CartoDB.Positron',
     'CartoDB.PositronNoLabels',
+    'Esri.WorldImagery',
+    'OpenStreetMap.Mapnik',
+    'OpenStreetMap.BlackAndWhite',
+    'Stamen.TerrainBackground',
     'Stamen.Toner',
     'Stamen.TonerLite',
     'Stamen.TonerBackground',
+    'Stamen.Watercolor',
+    'Thunderforest.OpenCycleMap',
+    'Thunderforest.SpinalMap',
+    'Thunderforest.Pioneer',
 ]
 
 const MODAL_CONTENT = {
