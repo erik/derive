@@ -7,6 +7,10 @@ Generate a heatmap from GPX data.
 Drag and drop one or more GPX files into the window. No data is ever uploaded,
 everything is done client side.
 
+Loosely inspired by [The Passage Ride](http://thepassageride.com), which you
+should join if you ever find yourself in Los Angeles on any given Wednesday
+night.
+
 http://library.nothingness.org/articles/SI/en/display/314
 
 ## Strava
