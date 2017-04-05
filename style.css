@@ -2,6 +2,10 @@
     font-family: Avenir, Helvetica Neue, Segoe UI, Helvetica, arial, sans-serif;
 }
 
+a {
+    color: black;
+}
+
 .pico-content {
     line-height: 1.2;
 }

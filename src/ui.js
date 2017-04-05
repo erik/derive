@@ -38,7 +38,10 @@ usual motives for movement and action, and let themselves be drawn by
 the attractions of the terrain and the encounters they find there.
 
 <a href="http://library.nothingness.org/articles/SI/en/display/314"><sup>1</sup></a>
-</em></p>`
+</em></p>
+
+<p>Code is available <a href="https://github.com/erik/derive">on GitHub</a>.</p>
+`
 }
 
 
