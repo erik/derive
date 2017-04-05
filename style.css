@@ -14,3 +14,13 @@
     left: 0;
     z-index: -1;
 }
+
+form {
+  width: 100%;
+}
+
+.form-row input,label {
+  width: 45%;
+  float: left;
+  display: inline-block;
+}

@@ -2,6 +2,24 @@ import picoModal from 'picoModal'
 import parseGPX from './gpx'
 
 
+const AVAILABLE_THEMES = [
+    'CartoDB.DarkMatter',
+    'CartoDB.DarkMatterNoLabels',
+    'CartoDB.Positron',
+    'CartoDB.PositronNoLabels',
+    'Esri.WorldImagery',
+    'OpenStreetMap.Mapnik',
+    'OpenStreetMap.BlackAndWhite',
+    'Stamen.TerrainBackground',
+    'Stamen.Toner',
+    'Stamen.TonerLite',
+    'Stamen.TonerBackground',
+    'Stamen.Watercolor',
+    'Thunderforest.OpenCycleMap',
+    'Thunderforest.SpinalMap',
+    'Thunderforest.Pioneer',
+]
+
 const MODAL_CONTENT = {
     help: `<h1>dérive</h1>
 <h4>Drag and drop one or more GPX files here</h4>
@@ -39,7 +57,10 @@ function handleFileSelect(map, evt) {
 
     function loadNextFile() {
         if (fileIndex >= files.length) {
-            tracks.forEach(t => map.addTrack(t))
+            tracks.forEach(t => {
+                console.log('Adding track:', t.name)
+                map.addTrack(t.points)
+            })
             return modal.destroy()
         }
 
@@ -93,6 +114,69 @@ function buildUploadModal(numFiles) {
 }
 
 
+export function buildSettingsModal(opts, finishCallback) {
+    let themes = AVAILABLE_THEMES.map(t => {
+        let selected = t == opts.theme ? 'selected' : ''
+
+        return `<option ${selected} value="${t}">${t}</option>`
+    })
+
+    let modalContent = `
+<h3>Options</h3>
+
+<form id="settings">
+  <span class="form-row">
+    <label>Theme</label>
+    <select name="theme">
+       ${themes}
+    </select>
+  </span>
+
+  <span class="form-row">
+    <label>Line color</label>
+    <input name="color" type="color" value=${opts.lineOptions.color}>
+  </span>
+
+  <span class="form-row">
+    <label>Line opacity</label>
+    <input name="opacity" type="range" min=0 max=1 step=0.01
+           value=${opts.lineOptions.opacity}>
+  </span>
+
+  <span class="form-row">
+    <label>Line width</label>
+    <input name="weight" type="number" min=1 max=100
+           value=${opts.lineOptions.weight}>
+  </span>
+</form>
+`
+    let modal = picoModal({
+        content: modalContent,
+        closeButton: true,
+        escCloses: true,
+        overlayClose: true,
+        overlayStyles: (styles) => { styles.opacity = 0.1 }
+    })
+
+    modal.afterClose((modal) => {
+        let elements = document.getElementById('settings').elements
+        let options = Object.assign({}, opts)
+
+        let _ = ['theme'].forEach(n => {
+            options[n] = elements[n].value
+        })
+
+        _ = ['color', 'weight', 'opacity'].forEach(n => {
+            options.lineOptions[n] = elements[n].value
+        })
+
+        finishCallback(options)
+        modal.destroy()
+    })
+
+    return modal
+}
+
 function showModal(type) {
     let modal = picoModal({
         content: MODAL_CONTENT[type],
@@ -111,7 +195,10 @@ export function initialize(map) {
     window.addEventListener('dragover', handleDragOver, false)
 
     window.addEventListener('drop', e => {
-        modal.destroy()
+        if (!modal.destroyed) {
+            modal.destroy()
+            modal.destroyed = true
+        }
         handleFileSelect(map, e)
     }, false)
 }
