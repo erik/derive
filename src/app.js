@@ -1,7 +1,5 @@
 import '../style.css'
 
-import jquery from 'jquery'
-
 import GpxMap from './map'
 import {initialize} from './ui'
 
@@ -34,4 +32,4 @@ if (!HTMLCanvasElement.prototype.toBlob) {
 }
 
 
-jquery(document).ready(app)
+document.addEventListener('DOMContentLoaded', app)
