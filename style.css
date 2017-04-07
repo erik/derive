@@ -20,7 +20,7 @@ a {
 }
 
 form {
-  width: 100%;
+  min-width: 300px;
 }
 
 .form-row input,label {

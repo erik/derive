@@ -41,6 +41,31 @@ the attractions of the terrain and the encounters they find there.
 </em></p>
 
 <p>Code is available <a href="https://github.com/erik/derive">on GitHub</a>.</p>
+`,
+
+    export: `
+<h3>Export Image</h3>
+
+<form id="settings">
+  <span class="form-row">
+    <label>Export as PNG</label>
+    <input type="radio" name="format" value="png" checked>
+  </span>
+  <span class="form-row">
+    <label>Export as SVG</label>
+    <input type="radio" name="format" value="svg">
+  </span>
+
+  <span class="form-row">
+    <label>Include map (for SVG)</label>
+    <input type="checkbox" name="renderMap" checked>
+  </span>
+</form>
+
+<div id="export-container">
+  <button id="render-export">Render</button>
+  <ul id="export-list"></ul>
+</div>
 `
 }
 
@@ -180,7 +205,7 @@ export function buildSettingsModal(opts, finishCallback) {
     return modal
 }
 
-function showModal(type) {
+export function showModal(type) {
     let modal = picoModal({
         content: MODAL_CONTENT[type],
         overlayStyles: (styles) => { styles.opacity = 0.01 }
