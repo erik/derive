@@ -40,6 +40,7 @@ export default class GpxMap {
                 title: 'Export as png',
                 onClick: (_btn, map) => {
                     let modal = showModal('export')
+                            .afterClose(() => modal.destroy())
 
                     document.getElementById('render-export').onclick = (e) => {
                         e.preventDefault()

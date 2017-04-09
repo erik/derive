@@ -204,7 +204,7 @@ export function showModal(type) {
     let modal = picoModal({
         content: MODAL_CONTENT[type],
         overlayStyles: (styles) => { styles.opacity = 0.01 }
-    }).afterClose(() => modal.destroy())
+    })
 
     modal.show()
 
