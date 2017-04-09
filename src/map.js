@@ -3,7 +3,7 @@ import leafletImage from 'leaflet-image'
 import 'leaflet-providers'
 import 'leaflet-easybutton'
 
-import {buildSettingsModal} from './ui'
+import {buildSettingsModal, showModal} from  './ui'
 
 
 // Los Angeles is the center of the universe
@@ -38,17 +38,24 @@ export default class GpxMap {
                 icon: 'fa-camera fa-lg',
                 stateName: 'default',
                 title: 'Export as png',
-                onClick: (_btn, map) => { this.screenshot('png') }
-            }]
-        }).addTo(this.map)
+                onClick: (_btn, map) => {
+                    let modal = showModal('export')
+                            .afterClose(() => modal.destroy())
 
-        leaflet.easyButton({
-            type: 'animate',
-            states: [{
-                icon: 'fa-code fa-lg',
-                stateName: 'default',
-                title: 'Export as svg',
-                onClick: (_btn, map) => { this.screenshot('svg') }
+                    document.getElementById('render-export').onclick = (e) => {
+                        e.preventDefault()
+
+                        let resultNode = document.createElement('li')
+                        let container = document.getElementById('export-list')
+
+                        resultNode.innerText = '... rendering ...'
+                        container.innerText = ''
+                        container.appendChild(resultNode)
+
+                        let elements = document.getElementById('settings').elements
+                        this.screenshot(elements.format.value, resultNode)
+                    }
+                }
             }]
         }).addTo(this.map)
 
@@ -110,20 +117,23 @@ export default class GpxMap {
         this.tracks.push(line)
     }
 
-    screenshot(fmt) {
+    screenshot(format, domNode) {
         leafletImage(this.map, (err, canvas) => {
             if (err) return window.alert(err)
 
             let anchor = document.createElement('a')
 
-            if (fmt == 'png') {
+            if (format == 'png') {
                 anchor.download = 'derive-export.png'
+                anchor.innerText = 'Download as PNG'
 
                 canvas.toBlob(blob => {
                     anchor.href = URL.createObjectURL(blob)
-                    anchor.click()
+                    domNode.innerHTML = anchor.outerHTML
                 })
-            } else if (fmt == 'svg') {
+            } else if (format == 'svg') {
+                anchor.innerText = 'Download as SVG'
+
                 let origin = this.map.getBounds(),
                     top = origin.getNorthWest(),
                     bot = origin.getSouthEast()
@@ -136,7 +146,7 @@ export default class GpxMap {
                     .map(trk => trk.getLatLngs())
                     .map(coord => coord.map(c => ({
                         x: (c.lng - top.lng) * scale,
-                        y: (top.lat - c.lat) * scale,
+                        y: (top.lat - c.lat) * scale
                     })))
                     .map(pts => leaflet.SVG.pointsToPath([pts], false))
 
@@ -169,7 +179,8 @@ export default class GpxMap {
 
                 let blob = new Blob([xml], {type: 'application/octet-stream'})
                 anchor.href = URL.createObjectURL(blob)
-                anchor.click()
+
+                domNode.innerHTML = anchor.outerHTML
             }
         })
     }

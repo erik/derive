@@ -15,9 +15,6 @@ const AVAILABLE_THEMES = [
     'Stamen.TonerLite',
     'Stamen.TonerBackground',
     'Stamen.Watercolor',
-    'Thunderforest.OpenCycleMap',
-    'Thunderforest.SpinalMap',
-    'Thunderforest.Pioneer',
 ]
 
 const MODAL_CONTENT = {
@@ -41,6 +38,29 @@ the attractions of the terrain and the encounters they find there.
 </em></p>
 
 <p>Code is available <a href="https://github.com/erik/derive">on GitHub</a>.</p>
+`,
+
+    export: `
+<h3>Export Image</h3>
+
+<form id="settings">
+  <div class="form-row">
+    <label>Format:</label>
+    <select name="format">
+      <option selected value="png">PNG</option>
+      <option value="svg">SVG (no background map)</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label></label>
+    <input id="render-export" type="button" value="Render">
+  </div>
+</form>
+
+<div id="export-container">
+  <ul id="export-list"></ul>
+</div>
 `
 }
 
@@ -180,7 +200,7 @@ export function buildSettingsModal(opts, finishCallback) {
     return modal
 }
 
-function showModal(type) {
+export function showModal(type) {
     let modal = picoModal({
         content: MODAL_CONTENT[type],
         overlayStyles: (styles) => { styles.opacity = 0.01 }
