@@ -15,9 +15,6 @@ const AVAILABLE_THEMES = [
     'Stamen.TonerLite',
     'Stamen.TonerBackground',
     'Stamen.Watercolor',
-    'Thunderforest.OpenCycleMap',
-    'Thunderforest.SpinalMap',
-    'Thunderforest.Pioneer',
 ]
 
 const MODAL_CONTENT = {
