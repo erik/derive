@@ -47,23 +47,21 @@ the attractions of the terrain and the encounters they find there.
 <h3>Export Image</h3>
 
 <form id="settings">
-  <span class="form-row">
-    <label>Export as PNG</label>
-    <input type="radio" name="format" value="png" checked>
-  </span>
-  <span class="form-row">
-    <label>Export as SVG</label>
-    <input type="radio" name="format" value="svg">
-  </span>
+  <div class="form-row">
+    <label>Format:</label>
+    <select name="format">
+      <option selected value="png">PNG</option>
+      <option value="svg">SVG (no background map)</option>
+    </select>
+  </div>
 
-  <span class="form-row">
-    <label>Include map (for SVG)</label>
-    <input type="checkbox" name="renderMap" checked>
-  </span>
+  <div class="form-row">
+    <label></label>
+    <input id="render-export" type="button" value="Render">
+  </div>
 </form>
 
 <div id="export-container">
-  <button id="render-export">Render</button>
   <ul id="export-list"></ul>
 </div>
 `
@@ -209,7 +207,7 @@ export function showModal(type) {
     let modal = picoModal({
         content: MODAL_CONTENT[type],
         overlayStyles: (styles) => { styles.opacity = 0.01 }
-    })
+    }).afterClose(() => modal.destroy())
 
     modal.show()
 

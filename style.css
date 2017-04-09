@@ -20,11 +20,22 @@ a {
 }
 
 form {
-  min-width: 300px;
+    width: 500px;
 }
 
-.form-row input,label {
-  width: 45%;
-  float: left;
-  display: inline-block;
+.form-row {
+    display: block;
+    width: 500px;
+    margin-top: 10px;
+}
+
+.form-row > label {
+    min-width: 150px;
+    display: inline-block;
+}
+
+.form-row > input, select, button {
+    width: 200px;
+    display: inline-block;
+    box-sizing: border-box;
 }

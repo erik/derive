@@ -51,14 +51,8 @@ export default class GpxMap {
                         container.innerText = ''
                         container.appendChild(resultNode)
 
-                        let options = {}
-
                         let elements = document.getElementById('settings').elements
-                        let _ = ['format', 'renderMap'].forEach(n => {
-                            options[n] = elements[n].value
-                        })
-
-                        this.screenshot(options, resultNode)
+                        this.screenshot(elements.format.value, resultNode)
                     }
                 }
             }]
@@ -122,13 +116,13 @@ export default class GpxMap {
         this.tracks.push(line)
     }
 
-    screenshot(options, domNode) {
+    screenshot(format, domNode) {
         leafletImage(this.map, (err, canvas) => {
             if (err) return window.alert(err)
 
             let anchor = document.createElement('a')
 
-            if (options.format == 'png') {
+            if (format == 'png') {
                 anchor.download = 'derive-export.png'
                 anchor.innerText = 'Download as PNG'
 
@@ -136,7 +130,7 @@ export default class GpxMap {
                     anchor.href = URL.createObjectURL(blob)
                     domNode.innerHTML = anchor.outerHTML
                 })
-            } else if (options.format == 'svg') {
+            } else if (format == 'svg') {
                 anchor.innerText = 'Download as SVG'
 
                 let origin = this.map.getBounds(),
@@ -151,7 +145,7 @@ export default class GpxMap {
                     .map(trk => trk.getLatLngs())
                     .map(coord => coord.map(c => ({
                         x: (c.lng - top.lng) * scale,
-                        y: (top.lat - c.lat) * scale,
+                        y: (top.lat - c.lat) * scale
                     })))
                     .map(pts => leaflet.SVG.pointsToPath([pts], false))
 
