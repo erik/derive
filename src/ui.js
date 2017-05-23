@@ -77,6 +77,7 @@ function handleFileSelect(map, evt) {
     modal.show()
 
     let fileIndex = 0
+    let parseFailures = []
 
     function loadNextFile() {
         if (fileIndex >= files.length) {
@@ -84,6 +85,13 @@ function handleFileSelect(map, evt) {
                 console.log('Adding track:', t.name)
                 map.addTrack(t.points)
             })
+
+            if (parseFailures.length > 0) {
+                console.error('Failed files:', parseFailures)
+                window.alert(`Finished loading with ${parseFailures.length} failure(s)\n
+View console for info.`)
+            }
+
             return modal.destroy()
         }
 
@@ -91,9 +99,13 @@ function handleFileSelect(map, evt) {
         reader.onload = (event) => {
             parseGPX(event.target.result, (err, track) => {
                 // TODO: Make an error modal
-                if (err) return window.alert(err)
+                if (err) {
+                    let file = files[fileIndex - 1]
+                    parseFailures.push({name: file.name, error: err})
+                } else {
+                    tracks.push(track)
+                }
 
-                tracks.push(track)
                 modal.progress(fileIndex)
 
                 // do the next file, but give the UI time to update.

@@ -9,7 +9,7 @@ const parser = new xml2js.Parser()
 
 
 function extractTrack(gpx) {
-    if (gpx.trk.length !== 1 || gpx.trk[0].trkseg.length !== 1) {
+    if (!gpx.trk || gpx.trk.length !== 1 || gpx.trk[0].trkseg.length !== 1) {
         console.log('Wild assumptions failed: trk.length = 1', gpx.trk)
         throw new Error('Unexpected gpx file format.')
     }
@@ -34,6 +34,10 @@ export default function parseGPX(gpxString, cb) {
         if (err) return cb(err)
         if (!result.gpx) return cb(new Error("Invalid file type."))
 
-        return cb(null, extractTrack(result.gpx))
+        try {
+            return cb(null, extractTrack(result.gpx))
+        } catch (e) {
+            return cb(e, null)
+        }
     })
 }
