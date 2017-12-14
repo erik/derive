@@ -1,4 +1,4 @@
-import picoModal from 'picoModal'
+import picoModal from 'picomodal'
 import parseGPX from './gpx'
 
 
