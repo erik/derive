@@ -31,6 +31,7 @@ Run on webpack dev web server
 
 ```javascript
 $ webpack-dev-server --progress --colors
+```
 
 
 ## Strava
