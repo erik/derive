@@ -183,7 +183,7 @@ export function buildSettingsModal(opts, finishCallback) {
 
     <span class="form-row">
         <label>Detect color from Strava bulk export</label>
-        <input name="detect" type="checkbox" ${detect}>
+        <input name="detectColors" type="checkbox" ${detect}>
     </span>
 </form>
 `;
@@ -210,7 +210,7 @@ export function buildSettingsModal(opts, finishCallback) {
             options.lineOptions[opt] = elements[opt].value;
         }
 
-        for (let opt of ['existing', 'detect']) {
+        for (let opt of ['existing', 'detectColors']) {
             options.lineOptions[opt] = elements[opt].checked;
         }
         

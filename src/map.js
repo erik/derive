@@ -150,7 +150,7 @@ export default class GpxMap {
     addTrack(track) {
         this.viewAll.enable();
         let lineOptions = Object.assign({}, this.options.lineOptions);
-        if (lineOptions.detect) {
+        if (lineOptions.detectColors) {
             if (/-(Hike|Walk)\.gpx/.test(track.filename))
                 lineOptions.color = "pink";
             else if (/-Run\.gpx/.test(track.filename))
