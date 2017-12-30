@@ -83,17 +83,18 @@ export default class GpxMap {
 
         let centre = this.centre.bind(this);
 
-        leaflet.easyButton({
+        this.viewAll = leaflet.easyButton({
             type: 'animate',
             states: [{
-                icon: 'fa-crosshairs fa-lg',
+                icon: 'fa-map fa-lg',
                 stateName: 'default',
-                title: 'Centre map on tracks',
+                title: 'Zoom to all tracks',
                 onClick: (_btn, map) => {
                     centre();
                 },
             }],
         }).addTo(this.map);
+        this.viewAll.disable();
 
         this.switchTheme(this.options.theme);
         this.requestBrowserLocation();
@@ -147,6 +148,7 @@ export default class GpxMap {
 
     addTrack(track) {
         let line = leaflet.polyline(track, this.options.lineOptions);
+        this.viewAll.enable();
         line.addTo(this.map);
 
         this.tracks.push(line);
