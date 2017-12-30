@@ -78,47 +78,34 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    let fileIndex = 0;
+    let i = 0;
     let parseFailures = [];
 
-    function loadNextFile() {
-        if (fileIndex >= files.length) {
-            tracks.forEach(t => {
-                console.log('Adding track:', t.name);
-                map.addTrack(t.points);
-            });
-
-            if (parseFailures.length > 0) {
-                console.error('Failed files:', parseFailures);
-                alert(`Finished loading with ${parseFailures.length} failure(s)\n
-View console for info.`);
-            }
-
-            return modal.destroy();
+    Promise.all(Array.prototype.map.call(files,file => new Promise(resolve => {
+        let reader = new FileReader();  
+        reader.onload = () => resolve(reader.result);
+        reader.readAsText(file, "UTF-8");
+    }).then(result => parseGPX(result, (err, track) => {
+        // TODO: Make an error modal
+        if (err) {
+            parseFailures.push({name: file.name, error: err});
+        } else {
+            tracks.push(track);
         }
+    
+        modal.progress(++i);
+    })))).then(() => {
+        tracks.forEach(t => {
+            console.log('Adding track:', t.name);
+            map.addTrack(t);
+        });
 
-        let reader = new FileReader();
-        reader.onload = (event) => {
-            parseGPX(event.target.result, (err, track) => {
-                // TODO: Make an error modal
-                if (err) {
-                    let file = files[fileIndex - 1];
-                    parseFailures.push({name: file.name, error: err});
-                } else {
-                    tracks.push(track);
-                }
-
-                modal.progress(fileIndex);
-
-                // do the next file, but give the UI time to update.
-                setTimeout(loadNextFile, 1);
-            })
+        if (parseFailures.length > 0) {
+            console.error('Failed files:', parseFailures);
+            alert(`Finished loading with ${parseFailures.length} failure(s)\nView console for info.`);
         }
-
-        reader.readAsBinaryString(files[fileIndex++]);
-    }
-
-    loadNextFile();
+        return modal.destroy();
+    });
 }
 
 
