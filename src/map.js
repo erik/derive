@@ -1,13 +1,13 @@
-import leaflet from 'leaflet'
-import leafletImage from 'leaflet-image'
-import 'leaflet-providers'
-import 'leaflet-easybutton'
+import leaflet from 'leaflet';
+import leafletImage from 'leaflet-image';
+import 'leaflet-providers';
+import 'leaflet-easybutton';
 
-import {buildSettingsModal, showModal} from  './ui'
+import {buildSettingsModal, showModal} from  './ui';
 
 
 // Los Angeles is the center of the universe
-const INIT_COORDS = [34.0522, -118.243]
+const INIT_COORDS = [34.0522, -118.243];
 
 
 const DEFAULT_OPTIONS = {
@@ -16,21 +16,21 @@ const DEFAULT_OPTIONS = {
         color: '#0CB1E8',
         weight: 1,
         opacity: 0.5,
-        smoothFactor: 1
+        smoothFactor: 1,
     }
-}
+};
 
 
 export default class GpxMap {
     constructor(options) {
-        this.options = options || DEFAULT_OPTIONS
-        this.tracks = []
+        this.options = options || DEFAULT_OPTIONS;
+        this.tracks = [];
 
         this.map = leaflet.map('background-map', {
             center: INIT_COORDS,
             zoom: 10,
-            preferCanvas: true
-        })
+            preferCanvas: true,
+        });
 
         leaflet.easyButton({
             type: 'animate',
@@ -39,21 +39,21 @@ export default class GpxMap {
                 stateName: 'default',
                 title: 'Export as png',
                 onClick: (_btn, map) => {
-                    let modal = showModal('export')
+                    let modal = showModal('exportImage')
                             .afterClose(() => modal.destroy())
 
                     document.getElementById('render-export').onclick = (e) => {
-                        e.preventDefault()
+                        e.preventDefault();
 
-                        let resultNode = document.createElement('li')
-                        let container = document.getElementById('export-list')
+                        let resultNode = document.createElement('li');
+                        let container = document.getElementById('export-list');
 
-                        resultNode.innerText = '... rendering ...'
-                        container.innerText = ''
-                        container.appendChild(resultNode)
+                        resultNode.innerText = '... rendering ...';
+                        container.innerText = '';
+                        container.appendChild(resultNode);
 
-                        let elements = document.getElementById('settings').elements
-                        this.screenshot(elements.format.value, resultNode)
+                        let elements = document.getElementById('settings').elements;
+                        this.screenshot(elements.format.value, resultNode);
                     }
                 }
             }]
@@ -68,79 +68,78 @@ export default class GpxMap {
                 onClick: (_btn, map) => {
                     buildSettingsModal(this.options, (opts) => {
                         this.updateOptions(opts)
-                    }).show()
-                }
-            }]
-        }).addTo(this.map)
+                    }).show();
+                },
+            }],
+        }).addTo(this.map);
 
-        this.switchTheme(this.options.theme)
-        this.requestBrowserLocation()
+        this.switchTheme(this.options.theme);
+        this.requestBrowserLocation();
     }
 
     switchTheme(themeName) {
-        if (this.mapTiles)
-            this.mapTiles.removeFrom(this.map)
+        if (this.mapTiles) this.mapTiles.removeFrom(this.map);
 
-        this.mapTiles = leaflet.tileLayer.provider(themeName)
-        this.mapTiles.addTo(this.map, {detectRetina: true})
+        this.mapTiles = leaflet.tileLayer.provider(themeName);
+        this.mapTiles.addTo(this.map, {detectRetina: true});
     }
 
     updateOptions(opts) {
         if (opts.theme !== this.options.theme) {
-            this.switchTheme(opts.theme)
+            this.switchTheme(opts.theme);
         }
 
         this.tracks.forEach(t => {
             t.setStyle({
                 color: opts.lineOptions.color,
                 weight: opts.lineOptions.weight,
-                opacity: opts.lineOptions.opacity
-            })
+                opacity: opts.lineOptions.opacity,
+            });
 
-            t.redraw()
-        })
+            t.redraw();
+        });
 
-        this.options = opts
+        this.options = opts;
     }
 
     // Try to pull geo location from browser and center the map
     requestBrowserLocation() {
-        navigator.geolocation.getCurrentPosition((pos) => {
-            this.map.panTo([pos.coords.latitude, pos.coords.longitude])
-        })
+        navigator.geolocation.getCurrentPosition(pos => {
+            this.map.panTo([pos.coords.latitude, pos.coords.longitude]);
+        });
     }
 
     addTrack(track) {
-        let line = leaflet.polyline(track, this.options.lineOptions)
-        line.addTo(this.map)
+        let line = leaflet.polyline(track, this.options.lineOptions);
+        line.addTo(this.map);
 
-        this.tracks.push(line)
+        this.tracks.push(line);
     }
 
     screenshot(format, domNode) {
         leafletImage(this.map, (err, canvas) => {
-            if (err) return window.alert(err)
+            if (err) return window.alert(err);
 
-            let anchor = document.createElement('a')
+            let anchor = document.createElement('a');
 
             if (format == 'png') {
-                anchor.download = 'derive-export.png'
-                anchor.innerText = 'Download as PNG'
+                anchor.download = 'derive-export.png';
+                anchor.innerText = 'Download as PNG';
 
                 canvas.toBlob(blob => {
-                    anchor.href = URL.createObjectURL(blob)
-                    domNode.innerHTML = anchor.outerHTML
+                    anchor.href = URL.createObjectURL(blob);
+                    domNode.innerHTML = anchor.outerHTML;
                 })
             } else if (format == 'svg') {
-                anchor.innerText = 'Download as SVG'
+                anchor.innerText = 'Download as SVG';
 
-                let origin = this.map.getBounds(),
-                    top = origin.getNorthWest(),
-                    bot = origin.getSouthEast()
+                let origin = this.map.getBounds();
+                let top = origin.getNorthWest();
+                let bot = origin.getSouthEast();
 
-                const width = bot.lng - top.lng,
-                      height = top.lat - bot.lat,
-                      scale = 1000
+                const width = bot.lng - top.lng;
+                const height = top.lat - bot.lat;
+                const scale = 1000;
 
                 let paths = this.tracks
                     .map(trk => trk.getLatLngs())
@@ -148,17 +147,17 @@ export default class GpxMap {
                         x: (c.lng - top.lng) * scale,
                         y: (top.lat - c.lat) * scale
                     })))
-                    .map(pts => leaflet.SVG.pointsToPath([pts], false))
+                    .map(pts => leaflet.SVG.pointsToPath([pts], false));
 
-                let svg = leaflet.SVG.create('svg')
-                let root = leaflet.SVG.create('g')
+                let svg = leaflet.SVG.create('svg');
+                let root = leaflet.SVG.create('g');
 
-                svg.setAttribute('viewBox', `0 0 ${scale * width} ${scale * height}`)
+                svg.setAttribute('viewBox', `0 0 ${scale * width} ${scale * height}`);
 
-                let opts = this.options.lineOptions
+                let opts = this.options.lineOptions;
 
                 paths.forEach(path => {
-                    let el = leaflet.SVG.create('path')
+                    let el = leaflet.SVG.create('path');
 
                     el.setAttribute('stroke', opts.color);
                     el.setAttribute('stroke-opacity', opts.opacity);
@@ -167,21 +166,21 @@ export default class GpxMap {
                     el.setAttribute('stroke-linejoin', 'round');
                     el.setAttribute('fill', 'none');
 
-                    el.setAttribute('d', path)
+                    el.setAttribute('d', path);
 
-                    root.appendChild(el)
-                })
+                    root.appendChild(el);
+                });
 
-                svg.appendChild(root)
+                svg.appendChild(root);
 
-                let xml = (new XMLSerializer()).serializeToString(svg)
-                anchor.download = 'derive-export.svg'
+                let xml = (new XMLSerializer()).serializeToString(svg);
+                anchor.download = 'derive-export.svg';
 
-                let blob = new Blob([xml], {type: 'application/octet-stream'})
-                anchor.href = URL.createObjectURL(blob)
+                let blob = new Blob([xml], {type: 'application/octet-stream'});
+                anchor.href = URL.createObjectURL(blob);
 
-                domNode.innerHTML = anchor.outerHTML
+                domNode.innerHTML = anchor.outerHTML;
             }
-        })
+        });
     }
 }
