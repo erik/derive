@@ -32,6 +32,13 @@ export default class GpxMap {
             preferCanvas: true,
         });
 
+        this.markScrolled = () => {
+            this.map.removeEventListener("movestart", this.markScrolled);
+            this.scrolled = true;
+        };
+
+        this.clearScroll();
+
         leaflet.easyButton({
             type: 'animate',
             states: [{
@@ -73,8 +80,27 @@ export default class GpxMap {
             }],
         }).addTo(this.map);
 
+        let centre = this.centre.bind(this);
+
+        leaflet.easyButton({
+            type: 'animate',
+            states: [{
+                icon: 'fa-crosshairs fa-lg',
+                stateName: 'default',
+                title: 'Centre map on tracks',
+                onClick: (_btn, map) => {
+                    centre();
+                },
+            }],
+        }).addTo(this.map);
+
         this.switchTheme(this.options.theme);
         this.requestBrowserLocation();
+    }
+
+    clearScroll () {
+        this.scrolled = false;
+        this.map.addEventListener("movestart", this.markScrolled);
     }
 
     switchTheme(themeName) {
@@ -105,7 +131,14 @@ export default class GpxMap {
     // Try to pull geo location from browser and center the map
     requestBrowserLocation() {
         navigator.geolocation.getCurrentPosition(pos => {
-            this.map.panTo([pos.coords.latitude, pos.coords.longitude]);
+            if (!this.scrolled && this.tracks.length == 0) {
+                this.map.panTo([pos.coords.latitude, pos.coords.longitude], {
+                    noMoveStart: true,
+                });
+                // noMoveStart doesn't seem to have an effect, see Leaflet
+                // issue: https://github.com/Leaflet/Leaflet/issues/5396
+                this.clearScroll();
+            }
         });
     }
 
@@ -114,6 +147,17 @@ export default class GpxMap {
         line.addTo(this.map);
 
         this.tracks.push(line);
+
+        if (!this.scrolled) this.centre();
+    }
+
+    centre() {
+        let scrolled = this.scrolled;
+        this.map.fitBounds((new L.featureGroup(this.tracks)).getBounds(), {
+            noMoveStart: true,
+            padding: [50,20],
+        });
+        if (!scrolled) this.clearScroll();
     }
 
     screenshot(format, domNode) {
