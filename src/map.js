@@ -18,6 +18,7 @@ const DEFAULT_OPTIONS = {
         opacity: 0.5,
         smoothFactor: 1,
         existing: true,
+        detectColors: true,
     }
 };
 
@@ -147,8 +148,17 @@ export default class GpxMap {
     }
 
     addTrack(track) {
-        let line = leaflet.polyline(track, this.options.lineOptions);
         this.viewAll.enable();
+        let lineOptions = Object.assign({}, this.options.lineOptions);
+        if (lineOptions.detect) {
+            if (/-(Hike|Walk)\.gpx/.test(track.filename))
+                lineOptions.color = "pink";
+            else if (/-Run\.gpx/.test(track.filename))
+                lineOptions.color = "red";
+            else if (/-Ride\.gpx/.test(track.filename))
+                lineOptions.color = "cyan";
+        }
+        let line = leaflet.polyline(track.points, lineOptions);
         line.addTo(this.map);
 
         this.tracks.push(line);

@@ -90,6 +90,7 @@ function handleFileSelect(map, evt) {
         if (err) {
             parseFailures.push({name: file.name, error: err});
         } else {
+            track.filename = file.name;
             tracks.push(track);
         }
     
@@ -139,9 +140,10 @@ function buildUploadModal(numFiles) {
 
 
 export function buildSettingsModal(opts, finishCallback) {
+    let existing = opts.lineOptions.existing ? 'checked' : '';
+    let detect = opts.lineOptions.detectColors ? 'checked' : '';
     let themes = AVAILABLE_THEMES.map(t => {
         let selected = t == opts.theme ? 'selected' : '';
-        let existing = opts.lineOptions.existing ? 'checked' : '';
 
         return `<option ${selected} value="${t}">${t}</option>`;
     })
@@ -176,7 +178,12 @@ export function buildSettingsModal(opts, finishCallback) {
 
     <span class="form-row">
         <label>Apply to existing</label>
-        <input name="existing" type="checkbox" ${checked}>
+        <input name="existing" type="checkbox" ${existing}>
+    </span>
+
+    <span class="form-row">
+        <label>Detect color from Strava bulk export</label>
+        <input name="detect" type="checkbox" ${detect}>
     </span>
 </form>
 `;
@@ -203,7 +210,7 @@ export function buildSettingsModal(opts, finishCallback) {
             options.lineOptions[opt] = elements[opt].value;
         }
 
-        for (let opt of ['existing']) {
+        for (let opt of ['existing', 'detect']) {
             options.lineOptions[opt] = elements[opt].checked;
         }
         
