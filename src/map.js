@@ -17,6 +17,7 @@ const DEFAULT_OPTIONS = {
         weight: 1,
         opacity: 0.5,
         smoothFactor: 1,
+        existing: true,
     }
 };
 
@@ -114,16 +115,18 @@ export default class GpxMap {
         if (opts.theme !== this.options.theme) {
             this.switchTheme(opts.theme);
         }
+        
+        if (opts.lineOptions.existing) {
+            this.tracks.forEach(t => {
+                t.setStyle({
+                    color: opts.lineOptions.color,
+                    weight: opts.lineOptions.weight,
+                    opacity: opts.lineOptions.opacity,
+                });
 
-        this.tracks.forEach(t => {
-            t.setStyle({
-                color: opts.lineOptions.color,
-                weight: opts.lineOptions.weight,
-                opacity: opts.lineOptions.opacity,
+                t.redraw();
             });
-
-            t.redraw();
-        });
+        }
 
         this.options = opts;
     }

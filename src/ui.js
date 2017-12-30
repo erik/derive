@@ -186,6 +186,11 @@ export function buildSettingsModal(opts, finishCallback) {
         <input name="weight" type="number" min=1 max=100
             value=${opts.lineOptions.weight}>
     </span>
+
+    <span class="form-row">
+        <label>Apply to existing</label>
+        <input name="existing" type="checkbox" ${checked}>
+    </span>
 </form>
 `;
 
