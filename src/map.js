@@ -82,7 +82,7 @@ export default class GpxMap {
             }],
         }).addTo(this.map);
 
-        let centre = this.centre.bind(this);
+        let center = this.center.bind(this);
 
         this.viewAll = leaflet.easyButton({
             type: 'animate',
@@ -91,7 +91,7 @@ export default class GpxMap {
                 stateName: 'default',
                 title: 'Zoom to all tracks',
                 onClick: (_btn, map) => {
-                    centre();
+                    center();
                 },
             }],
         }).addTo(this.map);
@@ -165,10 +165,10 @@ export default class GpxMap {
         this.tracks.push(line);
 
         if (!this.scrolled)
-            this.centre();
+            this.center();
     }
 
-    centre() {
+    center() {
         let scrolled = this.scrolled;
         this.map.fitBounds((new L.featureGroup(this.tracks)).getBounds(), {
             noMoveStart: true,
