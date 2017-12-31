@@ -107,7 +107,8 @@ export default class GpxMap {
     }
 
     switchTheme(themeName) {
-        if (this.mapTiles) this.mapTiles.removeFrom(this.map);
+        if (this.mapTiles)
+            this.mapTiles.removeFrom(this.map);
 
         this.mapTiles = leaflet.tileLayer.provider(themeName);
         this.mapTiles.addTo(this.map, {detectRetina: true});
@@ -163,7 +164,8 @@ export default class GpxMap {
 
         this.tracks.push(line);
 
-        if (!this.scrolled) this.centre();
+        if (!this.scrolled)
+            this.centre();
     }
 
     centre() {
@@ -172,12 +174,14 @@ export default class GpxMap {
             noMoveStart: true,
             padding: [50,20],
         });
-        if (!scrolled) this.clearScroll();
+        if (!scrolled)
+            this.clearScroll();
     }
 
     screenshot(format, domNode) {
         leafletImage(this.map, (err, canvas) => {
-            if (err) return window.alert(err);
+            if (err)
+                return window.alert(err);
 
             let anchor = document.createElement('a');
 
