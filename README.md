@@ -13,6 +13,27 @@ night.
 
 http://library.nothingness.org/articles/SI/en/display/314
 
+
+## Get Started
+
+Install dependencies
+
+```javascript
+$ npm install 
+```
+ Build bundle
+ 
+ ```javascript
+$ webpack
+ ```
+
+Run on webpack dev web server
+
+```javascript
+$ webpack-dev-server --progress --colors
+```
+
+
 ## Strava
 
 If you use Strava, go to
