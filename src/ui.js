@@ -73,7 +73,7 @@ function handleFileSelect(map, evt) {
     evt.preventDefault();
 
     let tracks = [];
-    let files = evt.dataTransfer.files;
+    let files = Array.from(evt.dataTransfer.files);
     let modal = buildUploadModal(files.length);
 
     modal.show();
@@ -81,32 +81,39 @@ function handleFileSelect(map, evt) {
     let i = 0;
     let parseFailures = [];
 
-    Promise.all(Array.prototype.map.call(files, file => new Promise(resolve => {
-        let reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsText(file, "UTF-8");
-    }).then(result => parseGPX(result, (err, track) => {
-        // TODO: Make an error modal
-        if (err) {
-            parseFailures.push({name: file.name, error: err});
-        } else {
-            track.filename = file.name;
-            tracks.push(track);
-        }
+    let loadFile = (file) => {
+        return new Promise(resolve => {
+            let reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsText(file, 'UTF-8');
+        }).then(data => {
+            parseGPX(data, (err, track) => {
+                if (err) {
+                    parseFailures.push({name: file.name, error: err});
+                } else {
+                    track.filename = file.name;
+                    tracks.push(track);
+                }
 
-        modal.progress(++i);
-    })))).then(() => {
-        tracks.forEach(t => {
-            console.log('Adding track:', t.name);
-            map.addTrack(t);
+                modal.progress(++i);
+            });
         });
+    }
 
-        if (parseFailures.length > 0) {
-            console.error('Failed files:', parseFailures);
-            alert(`Finished loading with ${parseFailures.length} failure(s)\nView console for info.`);
-        }
-        return modal.destroy();
-    });
+    Promise.all(files.map(f => loadFile(f)))
+        .then(() => {
+            tracks.forEach(t => {
+                console.log('Adding track:', t.name);
+                map.addTrack(t);
+            });
+
+            if (parseFailures.length > 0) {
+                console.error('Failed files:', parseFailures);
+                alert(`Finished loading with ${parseFailures.length} failure(s)\nView console for info.`);
+            }
+
+            return modal.destroy();
+        });
 }
 
 
