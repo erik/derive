@@ -2,16 +2,16 @@
 //
 // https://github.com/taterbase/gpx-parser
 
-import xml2js from 'xml2js'
+import xml2js from 'xml2js';
 
 
-const parser = new xml2js.Parser()
+const parser = new xml2js.Parser();
 
 
 function extractTrack(gpx) {
     if (!gpx.trk || gpx.trk.length !== 1 || gpx.trk[0].trkseg.length !== 1) {
-        console.log('Wild assumptions failed: trk.length = 1', gpx.trk)
-        throw new Error('Unexpected gpx file format.')
+        console.log('Wild assumptions failed: trk.length = 1', gpx.trk);
+        throw new Error('Unexpected gpx file format.');
     }
 
     let points = gpx.trk[0].trkseg[0].trkpt.map(trkpt => ({
@@ -25,19 +25,19 @@ function extractTrack(gpx) {
     return {
         points: points,
         name: gpx.trk[0].name[0]
-    }
+    };
 }
 
 
 export default function parseGPX(gpxString, cb) {
     return parser.parseString(gpxString, (err, result) => {
-        if (err) return cb(err)
-        if (!result.gpx) return cb(new Error("Invalid file type."))
+        if (err) return cb(err);
+        if (!result.gpx) return cb(new Error("Invalid file type."));
 
         try {
-            return cb(null, extractTrack(result.gpx))
+            return cb(null, extractTrack(result.gpx));
         } catch (e) {
-            return cb(e, null)
+            return cb(e, null);
         }
-    })
+    });
 }
