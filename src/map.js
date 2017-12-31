@@ -17,7 +17,7 @@ const DEFAULT_OPTIONS = {
         weight: 1,
         opacity: 0.5,
         smoothFactor: 1,
-        existing: true,
+        overrideExisting: true,
         detectColors: true,
     }
 };
@@ -118,7 +118,7 @@ export default class GpxMap {
             this.switchTheme(opts.theme);
         }
         
-        if (opts.lineOptions.existing) {
+        if (opts.lineOptions.overrideExisting) {
             this.tracks.forEach(t => {
                 t.setStyle({
                     color: opts.lineOptions.color,

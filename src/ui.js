@@ -140,10 +140,10 @@ function buildUploadModal(numFiles) {
 
 
 export function buildSettingsModal(map, opts, finishCallback) {
-    let existing = opts.lineOptions.existing ? 'checked' : '';
+    let overrideExisting = opts.lineOptions.overrideExisting ? 'checked' : '';
     let allSameColor = map.tracks.every(val => (
         val.options.color === map.tracks[0].options.color));
-    if (map.tracks.length > 0 && !allSameColor) existing = false;
+    if (map.tracks.length > 0 && !allSameColor) overrideExisting = false;
     else if (map.tracks.length > 0 && allSameColor) {
         opts.lineOptions.color = map.tracks[0].options.color;
     }
@@ -183,8 +183,8 @@ export function buildSettingsModal(map, opts, finishCallback) {
     </span>
 
     <span class="form-row">
-        <label>Apply to existing</label>
-        <input name="existing" type="checkbox" ${existing}>
+        <label>Override existing tracks</label>
+        <input name="overrideExisting" type="checkbox" ${overrideExisting}>
     </span>
 
     <span class="form-row">
@@ -216,7 +216,7 @@ export function buildSettingsModal(map, opts, finishCallback) {
             options.lineOptions[opt] = elements[opt].value;
         }
 
-        for (let opt of ['existing', 'detectColors']) {
+        for (let opt of ['overrideExisting', 'detectColors']) {
             options.lineOptions[opt] = elements[opt].checked;
         }
         
