@@ -141,10 +141,12 @@ function buildUploadModal(numFiles) {
 
 export function buildSettingsModal(tracks, opts, finishCallback) {
     let overrideExisting = opts.lineOptions.overrideExisting ? 'checked' : '';
-    let allSameColor = tracks.every(val => (
-        val.options.color === tracks[0].options.color));
-    if (mtracks.length > 0 && !allSameColor) overrideExisting = false;
-    else if (tracks.length > 0 && allSameColor) {
+    let allSameColor = tracks.every(val => {
+        return val.options.color === tracks[0].options.color;
+    });
+    if (mtracks.length > 0 && !allSameColor) {
+        overrideExisting = false;
+    } else if (tracks.length > 0 && allSameColor) {
         opts.lineOptions.color = tracks[0].options.color;
     }
     let detect = opts.lineOptions.detectColors ? 'checked' : '';
