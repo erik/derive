@@ -75,7 +75,7 @@ export default class GpxMap {
                 stateName: 'default',
                 title: 'Open settings dialog',
                 onClick: (_btn, map) => {
-                    buildSettingsModal(this.options, (opts) => {
+                    buildSettingsModal(this, this.options, (opts) => {
                         this.updateOptions(opts)
                     }).show();
                 },
@@ -152,11 +152,11 @@ export default class GpxMap {
         let lineOptions = Object.assign({}, this.options.lineOptions);
         if (lineOptions.detectColors) {
             if (/-(Hike|Walk)\.gpx/.test(track.filename))
-                lineOptions.color = "pink";
+                lineOptions.color = "#ffc0cb";
             else if (/-Run\.gpx/.test(track.filename))
-                lineOptions.color = "red";
+                lineOptions.color = "#ff0000";
             else if (/-Ride\.gpx/.test(track.filename))
-                lineOptions.color = "cyan";
+                lineOptions.color = "#00ffff";
         }
         let line = leaflet.polyline(track.points, lineOptions);
         line.addTo(this.map);

@@ -139,8 +139,14 @@ function buildUploadModal(numFiles) {
 }
 
 
-export function buildSettingsModal(opts, finishCallback) {
+export function buildSettingsModal(map, opts, finishCallback) {
     let existing = opts.lineOptions.existing ? 'checked' : '';
+    let allSameColor = map.tracks.every(val => (
+        val.options.color === map.tracks[0].options.color));
+    if (map.tracks.length > 0 && !allSameColor) existing = false;
+    else if (map.tracks.length > 0 && allSameColor) {
+        opts.lineOptions.color = map.tracks[0].options.color;
+    }
     let detect = opts.lineOptions.detectColors ? 'checked' : '';
     let themes = AVAILABLE_THEMES.map(t => {
         let selected = t == opts.theme ? 'selected' : '';
