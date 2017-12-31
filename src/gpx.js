@@ -25,7 +25,7 @@ function extractTrack(gpx) {
     return {
         points: points,
         name: gpx.trk[0].name[0]
-    }
+    };
 }
 
 
@@ -39,5 +39,5 @@ export default function parseGPX(gpxString, cb) {
         } catch (e) {
             return cb(e, null);
         }
-    })
+    });
 }

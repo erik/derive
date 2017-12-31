@@ -81,8 +81,8 @@ function handleFileSelect(map, evt) {
     let i = 0;
     let parseFailures = [];
 
-    Promise.all(Array.prototype.map.call(files,file => new Promise(resolve => {
-        let reader = new FileReader();  
+    Promise.all(Array.prototype.map.call(files, file => new Promise(resolve => {
+        let reader = new FileReader();
         reader.onload = () => resolve(reader.result);
         reader.readAsText(file, "UTF-8");
     }).then(result => parseGPX(result, (err, track) => {
@@ -93,7 +93,7 @@ function handleFileSelect(map, evt) {
             track.filename = file.name;
             tracks.push(track);
         }
-    
+
         modal.progress(++i);
     })))).then(() => {
         tracks.forEach(t => {
@@ -141,14 +141,19 @@ function buildUploadModal(numFiles) {
 
 export function buildSettingsModal(tracks, opts, finishCallback) {
     let overrideExisting = opts.lineOptions.overrideExisting ? 'checked' : '';
-    let allSameColor = tracks.every(val => {
-        return val.options.color === tracks[0].options.color;
-    });
-    if (tracks.length > 0 && !allSameColor) {
-        overrideExisting = false;
-    } else if (tracks.length > 0 && allSameColor) {
-        opts.lineOptions.color = tracks[0].options.color;
+
+    if (tracks.length > 0) {
+        let allSameColor = tracks.every(trk => {
+            return trk.options.color === tracks[0].options.color;
+        });
+
+        if (!allSameColor) {
+            overrideExisting = false;
+        } else {
+            opts.lineOptions.color = tracks[0].options.color;
+        }
     }
+
     let detect = opts.lineOptions.detectColors ? 'checked' : '';
     let themes = AVAILABLE_THEMES.map(t => {
         let selected = t == opts.theme ? 'selected' : '';
@@ -221,7 +226,7 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
         for (let opt of ['overrideExisting', 'detectColors']) {
             options.lineOptions[opt] = elements[opt].checked;
         }
-        
+
         finishCallback(options);
         modal.destroy();
     })

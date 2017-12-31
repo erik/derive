@@ -34,13 +34,6 @@ export default class GpxMap {
             preferCanvas: true,
         });
 
-        this.markScrolled = () => {
-            this.map.removeEventListener("movestart", this.markScrolled);
-            this.scrolled = true;
-        };
-
-        this.clearScroll();
-
         leaflet.easyButton({
             type: 'animate',
             states: [{
@@ -93,8 +86,14 @@ export default class GpxMap {
                 },
             }],
         }).addTo(this.map);
-        this.viewAll.disable();
 
+        this.markScrolled = () => {
+            this.map.removeEventListener("movestart", this.markScrolled);
+            this.scrolled = true;
+        };
+
+        this.clearScroll();
+        this.viewAll.disable();
         this.switchTheme(this.options.theme);
         this.requestBrowserLocation();
     }
@@ -105,8 +104,9 @@ export default class GpxMap {
     }
 
     switchTheme(themeName) {
-        if (this.mapTiles)
+        if (this.mapTiles) {
             this.mapTiles.removeFrom(this.map);
+        }
 
         this.mapTiles = leaflet.tileLayer.provider(themeName);
         this.mapTiles.addTo(this.map, {detectRetina: true});
@@ -116,7 +116,7 @@ export default class GpxMap {
         if (opts.theme !== this.options.theme) {
             this.switchTheme(opts.theme);
         }
-        
+
         if (opts.lineOptions.overrideExisting) {
             this.tracks.forEach(t => {
                 t.setStyle({
@@ -149,6 +149,7 @@ export default class GpxMap {
     addTrack(track) {
         this.viewAll.enable();
         let lineOptions = Object.assign({}, this.options.lineOptions);
+
         if (lineOptions.detectColors) {
             if (/-(Hike|Walk)\.gpx/.test(track.filename))
                 lineOptions.color = "#ffc0cb";
@@ -157,6 +158,7 @@ export default class GpxMap {
             else if (/-Ride\.gpx/.test(track.filename))
                 lineOptions.color = "#00ffff";
         }
+
         let line = leaflet.polyline(track.points, lineOptions);
         line.addTo(this.map);
 
@@ -167,12 +169,12 @@ export default class GpxMap {
     }
 
     center() {
-        let scrolled = this.scrolled;
         this.map.fitBounds((new L.featureGroup(this.tracks)).getBounds(), {
             noMoveStart: true,
-            padding: [50,20],
+            padding: [50, 20],
         });
-        if (!scrolled)
+
+        if (!this.scrolled)
             this.clearScroll();
     }
 
