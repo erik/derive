@@ -141,14 +141,19 @@ function buildUploadModal(numFiles) {
 
 export function buildSettingsModal(tracks, opts, finishCallback) {
     let overrideExisting = opts.lineOptions.overrideExisting ? 'checked' : '';
-    let allSameColor = tracks.every(val => {
-        return val.options.color === tracks[0].options.color;
-    });
-    if (tracks.length > 0 && !allSameColor) {
-        overrideExisting = false;
-    } else if (tracks.length > 0 && allSameColor) {
-        opts.lineOptions.color = tracks[0].options.color;
+
+    if (tracks.length > 0) {
+        let allSameColor = tracks.every(trk => {
+            return trk.options.color === tracks[0].options.color;
+        });
+
+        if (!allSameColor) {
+            overrideExisting = false;
+        } else {
+            opts.lineOptions.color = tracks[0].options.color;
+        }
     }
+
     let detect = opts.lineOptions.detectColors ? 'checked' : '';
     let themes = AVAILABLE_THEMES.map(t => {
         let selected = t == opts.theme ? 'selected' : '';

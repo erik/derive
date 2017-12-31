@@ -34,13 +34,6 @@ export default class GpxMap {
             preferCanvas: true,
         });
 
-        this.markScrolled = () => {
-            this.map.removeEventListener("movestart", this.markScrolled);
-            this.scrolled = true;
-        };
-
-        this.clearScroll();
-
         leaflet.easyButton({
             type: 'animate',
             states: [{
@@ -93,8 +86,14 @@ export default class GpxMap {
                 },
             }],
         }).addTo(this.map);
-        this.viewAll.disable();
 
+        this.markScrolled = () => {
+            this.map.removeEventListener("movestart", this.markScrolled);
+            this.scrolled = true;
+        };
+
+        this.clearScroll();
+        this.viewAll.disable();
         this.switchTheme(this.options.theme);
         this.requestBrowserLocation();
     }
