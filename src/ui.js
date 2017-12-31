@@ -144,7 +144,7 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
     let allSameColor = tracks.every(val => {
         return val.options.color === tracks[0].options.color;
     });
-    if (mtracks.length > 0 && !allSameColor) {
+    if (tracks.length > 0 && !allSameColor) {
         overrideExisting = false;
     } else if (tracks.length > 0 && allSameColor) {
         opts.lineOptions.color = tracks[0].options.color;
