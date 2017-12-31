@@ -139,13 +139,13 @@ function buildUploadModal(numFiles) {
 }
 
 
-export function buildSettingsModal(map, opts, finishCallback) {
+export function buildSettingsModal(tracks, opts, finishCallback) {
     let overrideExisting = opts.lineOptions.overrideExisting ? 'checked' : '';
-    let allSameColor = map.tracks.every(val => (
-        val.options.color === map.tracks[0].options.color));
-    if (map.tracks.length > 0 && !allSameColor) overrideExisting = false;
-    else if (map.tracks.length > 0 && allSameColor) {
-        opts.lineOptions.color = map.tracks[0].options.color;
+    let allSameColor = tracks.every(val => (
+        val.options.color === tracks[0].options.color));
+    if (mtracks.length > 0 && !allSameColor) overrideExisting = false;
+    else if (tracks.length > 0 && allSameColor) {
+        opts.lineOptions.color = tracks[0].options.color;
     }
     let detect = opts.lineOptions.detectColors ? 'checked' : '';
     let themes = AVAILABLE_THEMES.map(t => {

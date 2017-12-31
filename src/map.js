@@ -75,7 +75,7 @@ export default class GpxMap {
                 stateName: 'default',
                 title: 'Open settings dialog',
                 onClick: (_btn, map) => {
-                    buildSettingsModal(this, this.options, (opts) => {
+                    buildSettingsModal(this.tracks, this.options, (opts) => {
                         this.updateOptions(opts)
                     }).show();
                 },
