@@ -82,8 +82,6 @@ export default class GpxMap {
             }],
         }).addTo(this.map);
 
-        let center = this.center.bind(this);
-
         this.viewAll = leaflet.easyButton({
             type: 'animate',
             states: [{
@@ -91,7 +89,7 @@ export default class GpxMap {
                 stateName: 'default',
                 title: 'Zoom to all tracks',
                 onClick: (_btn, map) => {
-                    center();
+                    this.center();
                 },
             }],
         }).addTo(this.map);
