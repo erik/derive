@@ -39,3 +39,15 @@ form {
     display: inline-block;
     box-sizing: border-box;
 }
+
+.failures {
+    color: red;
+}
+
+ul.failures {
+    max-height: 25vh;
+    overflow-y: auto;
+    border: 1px solid gray;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}

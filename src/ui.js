@@ -78,42 +78,29 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    let i = 0;
     let parseFailures = [];
 
-    let loadFile = (file) => {
-        return new Promise(resolve => {
-            let reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.readAsText(file, 'UTF-8');
-        }).then(data => {
-            parseGPX(data, (err, track) => {
-                if (err) {
-                    parseFailures.push({name: file.name, error: err});
-                } else {
-                    track.filename = file.name;
-                    tracks.push(track);
-                }
+    let openFile = file => new Promise(resolve => {
+        let reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsText(file, "UTF-8");
+    });
 
-                modal.progress(++i);
-            });
-        });
-    }
+    let loadFile = file => openFile(file).then(parseGPX).then(track => {
+        track.filename = file.name;
+        tracks.push(track);
+        console.info('Adding track:', track.name);
+        map.addTrack(track);
+        modal.addSuccess();
+    }, err => {
+        modal.addFailure({name: file.name, error: err});
+    });
 
-    Promise.all(files.map(f => loadFile(f)))
-        .then(() => {
-            tracks.forEach(t => {
-                console.log('Adding track:', t.name);
-                map.addTrack(t);
-            });
+    Promise.all(files.map(loadFile)).then(() => {
+        map.recenter();
 
-            if (parseFailures.length > 0) {
-                console.error('Failed files:', parseFailures);
-                alert(`Finished loading with ${parseFailures.length} failure(s)\nView console for info.`);
-            }
-
-            return modal.destroy();
-        });
+        modal.finished();
+    });
 }
 
 
@@ -125,21 +112,70 @@ function handleDragOver(evt) {
 
 
 function buildUploadModal(numFiles) {
-    let getModalContent = numLoaded => `<h1>Reading GPX files...</h1>
-<span id="">${numLoaded} loaded of <b>${numFiles}</b>`;
+    let numLoaded = 0;
+    let failures = [];
+    let getModalContent = () => `
+        <h1>Reading GPX files...</h1>
+        <p>${numLoaded} loaded${
+            failures.length ? `, <span class='failures'>${failures.length} failed</span>` : ``
+        } of <b>${numFiles}</b></p>`;
 
     let modal = picoModal({
-        content: getModalContent(0),
-        closeButton: false,
+        content: getModalContent(),
         escCloses: false,
         overlayClose: false,
         overlayStyles: styles => {
             styles.opacity = 0.1;
         },
-    })
+    });
 
-    modal.progress = loaded => {
-        modal.modalElem().innerHTML = getModalContent(loaded);
+    modal.afterCreate(() => {
+        // Do not allow the modal to be closed before loading is complete.
+        // PicoModal does not allow for native toggling
+        modal.closeElem().style.display = 'none';
+    });
+
+    modal.afterClose(() => modal.destroy());
+
+    // Override the content of the modal, without removing the close button.
+    // PicoModal does not allow for native content overwriting.
+    modal.setContent = body => {
+        Array.from(modal.modalElem().childNodes).forEach(child => {
+            if (child != modal.closeElem()) {
+                modal.modalElem().removeChild(child);
+            }
+        });
+        modal.modalElem().insertAdjacentHTML('afterbegin',body);
+    };
+
+    modal.addFailure = failure => {
+        failures.push(failure);
+        modal.setContent(getModalContent());
+    };
+
+    modal.addSuccess = () => {
+        numLoaded++;
+        modal.setContent(getModalContent());
+    };
+
+    modal.finished = () => {
+        if (failures.length == 0)
+            return modal.close();
+        let failedItems = failures.map(failure => `<li>${failure.name}</li>`);
+        modal.setContent(`
+            <h1>GPX files loaded</h1>
+            <p>
+                Loaded ${numLoaded}, 
+                <span class="failures">
+                    ${failures.length} failure${failures.length==1?'':'s'}:
+                </span>
+            </p>
+            <ul class="failures">${failedItems.join('')}</ul>`);
+        modal.closeElem().style.display = '';
+        modal.options({
+            escCloses: true,
+            overlayClose: true,
+        });
     };
 
     return modal;
@@ -169,44 +205,44 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
     })
 
     let modalContent = `
-<h3>Options</h3>
+        <h3>Options</h3>
 
-<form id="settings">
-    <span class="form-row">
-        <label>Theme</label>
-        <select name="theme">
-            ${themes}
-        </select>
-    </span>
+        <form id="settings">
+            <span class="form-row">
+                <label>Theme</label>
+                <select name="theme">
+                    ${themes}
+                </select>
+            </span>
 
-    <span class="form-row">
-        <label>Line color</label>
-        <input name="color" type="color" value=${opts.lineOptions.color}>
-    </span>
+            <span class="form-row">
+                <label>Line color</label>
+                <input name="color" type="color" value=${opts.lineOptions.color}>
+            </span>
 
-    <span class="form-row">
-        <label>Line opacity</label>
-        <input name="opacity" type="range" min=0 max=1 step=0.01
-            value=${opts.lineOptions.opacity}>
-    </span>
+            <span class="form-row">
+                <label>Line opacity</label>
+                <input name="opacity" type="range" min=0 max=1 step=0.01
+                    value=${opts.lineOptions.opacity}>
+            </span>
 
-    <span class="form-row">
-        <label>Line width</label>
-        <input name="weight" type="number" min=1 max=100
-            value=${opts.lineOptions.weight}>
-    </span>
+            <span class="form-row">
+                <label>Line width</label>
+                <input name="weight" type="number" min=1 max=100
+                    value=${opts.lineOptions.weight}>
+            </span>
 
-    <span class="form-row">
-        <label>Override existing tracks</label>
-        <input name="overrideExisting" type="checkbox" ${overrideExisting}>
-    </span>
+            <span class="form-row">
+                <label>Override existing tracks</label>
+                <input name="overrideExisting" type="checkbox" ${overrideExisting}>
+            </span>
 
-    <span class="form-row">
-        <label>Detect color from Strava bulk export</label>
-        <input name="detectColors" type="checkbox" ${detect}>
-    </span>
-</form>
-`;
+            <span class="form-row">
+                <label>Detect color from Strava bulk export</label>
+                <input name="detectColors" type="checkbox" ${detect}>
+            </span>
+        </form>
+        `;
 
     let modal = picoModal({
         content: modalContent,
