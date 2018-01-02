@@ -166,12 +166,15 @@ export default class GpxMap {
         this.tracks.push(line);
     }
 
+    // Center the map if the user has not yet manually panned the map
     recenter() {
         if (!this.scrolled)
             this.center();
     }
 
     center() {
+        // If there are no tracks, then don't try to get the bounds, as there
+        // would be an error
         if (this.tracks.length == 0)
             return;
         this.map.fitBounds((new L.featureGroup(this.tracks)).getBounds(), {

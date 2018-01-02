@@ -158,6 +158,7 @@ function buildUploadModal(numFiles) {
         modal.setContent(getModalContent());
     };
 
+    // Show any errors, or close modal if no errors occurred
     modal.finished = () => {
         if (failures.length == 0)
             return modal.close();
@@ -171,6 +172,7 @@ function buildUploadModal(numFiles) {
                 </span>
             </p>
             <ul class="failures">${failedItems.join('')}</ul>`);
+        // enable all the methods of closing the window
         modal.closeElem().style.display = '';
         modal.options({
             escCloses: true,
@@ -205,44 +207,43 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
     })
 
     let modalContent = `
-        <h3>Options</h3>
+<h3>Options</h3>
 
-        <form id="settings">
-            <span class="form-row">
-                <label>Theme</label>
-                <select name="theme">
-                    ${themes}
-                </select>
-            </span>
+<form id="settings">
+    <span class="form-row">
+        <label>Theme</label>
+        <select name="theme">
+            ${themes}
+        </select>
+    </span>
 
-            <span class="form-row">
-                <label>Line color</label>
-                <input name="color" type="color" value=${opts.lineOptions.color}>
-            </span>
+    <span class="form-row">
+        <label>Line color</label>
+        <input name="color" type="color" value=${opts.lineOptions.color}>
+    </span>
 
-            <span class="form-row">
-                <label>Line opacity</label>
-                <input name="opacity" type="range" min=0 max=1 step=0.01
-                    value=${opts.lineOptions.opacity}>
-            </span>
+    <span class="form-row">
+        <label>Line opacity</label>
+        <input name="opacity" type="range" min=0 max=1 step=0.01
+            value=${opts.lineOptions.opacity}>
+    </span>
 
-            <span class="form-row">
-                <label>Line width</label>
-                <input name="weight" type="number" min=1 max=100
-                    value=${opts.lineOptions.weight}>
-            </span>
+    <span class="form-row">
+        <label>Line width</label>
+        <input name="weight" type="number" min=1 max=100
+            value=${opts.lineOptions.weight}>
+    </span>
 
-            <span class="form-row">
-                <label>Override existing tracks</label>
-                <input name="overrideExisting" type="checkbox" ${overrideExisting}>
-            </span>
+    <span class="form-row">
+        <label>Override existing tracks</label>
+        <input name="overrideExisting" type="checkbox" ${overrideExisting}>
+    </span>
 
-            <span class="form-row">
-                <label>Detect color from Strava bulk export</label>
-                <input name="detectColors" type="checkbox" ${detect}>
-            </span>
-        </form>
-        `;
+    <span class="form-row">
+        <label>Detect color from Strava bulk export</label>
+        <input name="detectColors" type="checkbox" ${detect}>
+    </span>
+</form>`;
 
     let modal = picoModal({
         content: modalContent,
