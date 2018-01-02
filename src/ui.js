@@ -1,5 +1,5 @@
-import picoModal from 'picomodal'
-import parseGPX from './gpx'
+import picoModal from 'picomodal';
+import parseGPX from './gpx';
 
 
 const AVAILABLE_THEMES = [
@@ -64,7 +64,7 @@ the attractions of the terrain and the encounters they find there.
     <ul id="export-list"></ul>
 </div>
 `
-}
+};
 
 
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
@@ -78,12 +78,10 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    let parseFailures = [];
-
     let openFile = file => new Promise(resolve => {
         let reader = new FileReader();
         reader.onload = () => resolve(reader.result);
-        reader.readAsText(file, "UTF-8");
+        reader.readAsText(file, 'UTF-8');
     });
 
     let loadFile = file => openFile(file).then(parseGPX).then(track => {
@@ -141,11 +139,12 @@ function buildUploadModal(numFiles) {
     // PicoModal does not allow for native content overwriting.
     modal.setContent = body => {
         Array.from(modal.modalElem().childNodes).forEach(child => {
-            if (child != modal.closeElem()) {
+            if (child !== modal.closeElem()) {
                 modal.modalElem().removeChild(child);
             }
         });
-        modal.modalElem().insertAdjacentHTML('afterbegin',body);
+
+        modal.modalElem().insertAdjacentHTML('afterbegin', body);
     };
 
     modal.addFailure = failure => {
@@ -160,15 +159,17 @@ function buildUploadModal(numFiles) {
 
     // Show any errors, or close modal if no errors occurred
     modal.finished = () => {
-        if (failures.length == 0)
+        if (failures.length === 0) {
             return modal.close();
+        }
+
         let failedItems = failures.map(failure => `<li>${failure.name}</li>`);
         modal.setContent(`
             <h1>GPX files loaded</h1>
             <p>
-                Loaded ${numLoaded}, 
+                Loaded ${numLoaded},
                 <span class="failures">
-                    ${failures.length} failure${failures.length==1?'':'s'}:
+                    ${failures.length} failure${failures.length === 1 ? '' : 's'}:
                 </span>
             </p>
             <ul class="failures">${failedItems.join('')}</ul>`);
@@ -201,10 +202,10 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
 
     let detect = opts.lineOptions.detectColors ? 'checked' : '';
     let themes = AVAILABLE_THEMES.map(t => {
-        let selected = t == opts.theme ? 'selected' : '';
+        let selected = (t === opts.theme) ? 'selected' : '';
 
         return `<option ${selected} value="${t}">${t}</option>`;
-    })
+    });
 
     let modalContent = `
 <h3>Options</h3>
@@ -273,7 +274,7 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
 
         finishCallback(options);
         modal.destroy();
-    })
+    });
 
     return modal;
 }
@@ -284,7 +285,7 @@ export function showModal(type) {
         overlayStyles: (styles) => {
             styles.opacity = 0.01;
         },
-    })
+    });
 
     modal.show();
 
