@@ -1,5 +1,5 @@
-import picoModal from 'picomodal'
-import parseGPX from './gpx'
+import picoModal from 'picomodal';
+import parseGPX from './gpx';
 
 
 const AVAILABLE_THEMES = [
@@ -64,7 +64,7 @@ the attractions of the terrain and the encounters they find there.
     <ul id="export-list"></ul>
 </div>
 `
-}
+};
 
 
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
@@ -78,42 +78,27 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    let i = 0;
-    let parseFailures = [];
+    let openFile = file => new Promise(resolve => {
+        let reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsText(file, 'UTF-8');
+    });
 
-    let loadFile = (file) => {
-        return new Promise(resolve => {
-            let reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.readAsText(file, 'UTF-8');
-        }).then(data => {
-            parseGPX(data, (err, track) => {
-                if (err) {
-                    parseFailures.push({name: file.name, error: err});
-                } else {
-                    track.filename = file.name;
-                    tracks.push(track);
-                }
+    let loadFile = file => openFile(file).then(parseGPX).then(track => {
+        track.filename = file.name;
+        tracks.push(track);
+        console.info('Adding track:', track.name);
+        map.addTrack(track);
+        modal.addSuccess();
+    }, err => {
+        modal.addFailure({name: file.name, error: err});
+    });
 
-                modal.progress(++i);
-            });
-        });
-    }
+    Promise.all(files.map(loadFile)).then(() => {
+        map.recenter();
 
-    Promise.all(files.map(f => loadFile(f)))
-        .then(() => {
-            tracks.forEach(t => {
-                console.log('Adding track:', t.name);
-                map.addTrack(t);
-            });
-
-            if (parseFailures.length > 0) {
-                console.error('Failed files:', parseFailures);
-                alert(`Finished loading with ${parseFailures.length} failure(s)\nView console for info.`);
-            }
-
-            return modal.destroy();
-        });
+        modal.finished();
+    });
 }
 
 
@@ -125,21 +110,75 @@ function handleDragOver(evt) {
 
 
 function buildUploadModal(numFiles) {
-    let getModalContent = numLoaded => `<h1>Reading GPX files...</h1>
-<span id="">${numLoaded} loaded of <b>${numFiles}</b>`;
+    let numLoaded = 0;
+    let failures = [];
+    let getModalContent = () => `
+        <h1>Reading GPX files...</h1>
+        <p>${numLoaded} loaded${
+            failures.length ? `, <span class='failures'>${failures.length} failed</span>` : ``
+        } of <b>${numFiles}</b></p>`;
 
     let modal = picoModal({
-        content: getModalContent(0),
-        closeButton: false,
+        content: getModalContent(),
         escCloses: false,
         overlayClose: false,
         overlayStyles: styles => {
             styles.opacity = 0.1;
         },
-    })
+    });
 
-    modal.progress = loaded => {
-        modal.modalElem().innerHTML = getModalContent(loaded);
+    modal.afterCreate(() => {
+        // Do not allow the modal to be closed before loading is complete.
+        // PicoModal does not allow for native toggling
+        modal.closeElem().style.display = 'none';
+    });
+
+    modal.afterClose(() => modal.destroy());
+
+    // Override the content of the modal, without removing the close button.
+    // PicoModal does not allow for native content overwriting.
+    modal.setContent = body => {
+        Array.from(modal.modalElem().childNodes).forEach(child => {
+            if (child !== modal.closeElem()) {
+                modal.modalElem().removeChild(child);
+            }
+        });
+
+        modal.modalElem().insertAdjacentHTML('afterbegin', body);
+    };
+
+    modal.addFailure = failure => {
+        failures.push(failure);
+        modal.setContent(getModalContent());
+    };
+
+    modal.addSuccess = () => {
+        numLoaded++;
+        modal.setContent(getModalContent());
+    };
+
+    // Show any errors, or close modal if no errors occurred
+    modal.finished = () => {
+        if (failures.length === 0) {
+            return modal.close();
+        }
+
+        let failedItems = failures.map(failure => `<li>${failure.name}</li>`);
+        modal.setContent(`
+            <h1>GPX files loaded</h1>
+            <p>
+                Loaded ${numLoaded},
+                <span class="failures">
+                    ${failures.length} failure${failures.length === 1 ? '' : 's'}:
+                </span>
+            </p>
+            <ul class="failures">${failedItems.join('')}</ul>`);
+        // enable all the methods of closing the window
+        modal.closeElem().style.display = '';
+        modal.options({
+            escCloses: true,
+            overlayClose: true,
+        });
     };
 
     return modal;
@@ -163,10 +202,10 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
 
     let detect = opts.lineOptions.detectColors ? 'checked' : '';
     let themes = AVAILABLE_THEMES.map(t => {
-        let selected = t == opts.theme ? 'selected' : '';
+        let selected = (t === opts.theme) ? 'selected' : '';
 
         return `<option ${selected} value="${t}">${t}</option>`;
-    })
+    });
 
     let modalContent = `
 <h3>Options</h3>
@@ -205,8 +244,7 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
         <label>Detect color from Strava bulk export</label>
         <input name="detectColors" type="checkbox" ${detect}>
     </span>
-</form>
-`;
+</form>`;
 
     let modal = picoModal({
         content: modalContent,
@@ -236,7 +274,7 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
 
         finishCallback(options);
         modal.destroy();
-    })
+    });
 
     return modal;
 }
@@ -247,7 +285,7 @@ export function showModal(type) {
         overlayStyles: (styles) => {
             styles.opacity = 0.01;
         },
-    })
+    });
 
     modal.show();
 

@@ -40,9 +40,9 @@ export default class GpxMap {
                 icon: 'fa-camera fa-lg',
                 stateName: 'default',
                 title: 'Export as png',
-                onClick: (_btn, map) => {
+                onClick: (_btn, _map) => {
                     let modal = showModal('exportImage')
-                            .afterClose(() => modal.destroy())
+                        .afterClose(() => modal.destroy());
 
                     document.getElementById('render-export').onclick = (e) => {
                         e.preventDefault();
@@ -56,10 +56,10 @@ export default class GpxMap {
 
                         let elements = document.getElementById('settings').elements;
                         this.screenshot(elements.format.value, resultNode);
-                    }
+                    };
                 }
             }]
-        }).addTo(this.map)
+        }).addTo(this.map);
 
         leaflet.easyButton({
             type: 'animate',
@@ -67,9 +67,9 @@ export default class GpxMap {
                 icon: 'fa-sliders fa-lg',
                 stateName: 'default',
                 title: 'Open settings dialog',
-                onClick: (_btn, map) => {
+                onClick: (_btn, _map) => {
                     buildSettingsModal(this.tracks, this.options, (opts) => {
-                        this.updateOptions(opts)
+                        this.updateOptions(opts);
                     }).show();
                 },
             }],
@@ -88,7 +88,7 @@ export default class GpxMap {
         }).addTo(this.map);
 
         this.markScrolled = () => {
-            this.map.removeEventListener("movestart", this.markScrolled);
+            this.map.removeEventListener('movestart', this.markScrolled);
             this.scrolled = true;
         };
 
@@ -100,7 +100,7 @@ export default class GpxMap {
 
     clearScroll () {
         this.scrolled = false;
-        this.map.addEventListener("movestart", this.markScrolled);
+        this.map.addEventListener('movestart', this.markScrolled);
     }
 
     switchTheme(themeName) {
@@ -135,9 +135,10 @@ export default class GpxMap {
     // Try to pull geo location from browser and center the map
     requestBrowserLocation() {
         navigator.geolocation.getCurrentPosition(pos => {
-            if (!this.scrolled && this.tracks.length == 0) {
+            if (!this.scrolled && this.tracks.length === 0) {
                 this.map.panTo([pos.coords.latitude, pos.coords.longitude], {
                     noMoveStart: true,
+                    animate: false,
                 });
                 // noMoveStart doesn't seem to have an effect, see Leaflet
                 // issue: https://github.com/Leaflet/Leaflet/issues/5396
@@ -151,49 +152,63 @@ export default class GpxMap {
         let lineOptions = Object.assign({}, this.options.lineOptions);
 
         if (lineOptions.detectColors) {
-            if (/-(Hike|Walk)\.gpx/.test(track.filename))
-                lineOptions.color = "#ffc0cb";
-            else if (/-Run\.gpx/.test(track.filename))
-                lineOptions.color = "#ff0000";
-            else if (/-Ride\.gpx/.test(track.filename))
-                lineOptions.color = "#00ffff";
+            if (/-(Hike|Walk)\.gpx/.test(track.filename)) {
+                lineOptions.color = '#ffc0cb';
+            } else if (/-Run\.gpx/.test(track.filename)) {
+                lineOptions.color = '#ff0000';
+            } else if (/-Ride\.gpx/.test(track.filename)) {
+                lineOptions.color = '#00ffff';
+            }
         }
 
         let line = leaflet.polyline(track.points, lineOptions);
         line.addTo(this.map);
 
         this.tracks.push(line);
+    }
 
-        if (!this.scrolled)
+    // Center the map if the user has not yet manually panned the map
+    recenter() {
+        if (!this.scrolled) {
             this.center();
+        }
     }
 
     center() {
-        this.map.fitBounds((new L.featureGroup(this.tracks)).getBounds(), {
+        // If there are no tracks, then don't try to get the bounds, as there
+        // would be an error
+        if (this.tracks.length === 0) {
+            return;
+        }
+
+        this.map.fitBounds((new leaflet.featureGroup(this.tracks)).getBounds(), {
             noMoveStart: true,
+            animate: false,
             padding: [50, 20],
         });
 
-        if (!this.scrolled)
+        if (!this.scrolled) {
             this.clearScroll();
+        }
     }
 
     screenshot(format, domNode) {
         leafletImage(this.map, (err, canvas) => {
-            if (err)
+            if (err) {
                 return window.alert(err);
+            }
 
             let anchor = document.createElement('a');
 
-            if (format == 'png') {
+            if (format === 'png') {
                 anchor.download = 'derive-export.png';
                 anchor.innerText = 'Download as PNG';
 
                 canvas.toBlob(blob => {
                     anchor.href = URL.createObjectURL(blob);
                     domNode.innerHTML = anchor.outerHTML;
-                })
-            } else if (format == 'svg') {
+                });
+            } else if (format === 'svg') {
                 anchor.innerText = 'Download as SVG';
 
                 let origin = this.map.getBounds();
