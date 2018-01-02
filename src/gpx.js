@@ -29,15 +29,14 @@ function extractTrack(gpx) {
 }
 
 
-export default function parseGPX(gpxString, cb) {
-    return parser.parseString(gpxString, (err, result) => {
-        if (err) return cb(err);
-        if (!result.gpx) return cb(new Error("Invalid file type."));
-
-        try {
-            return cb(null, extractTrack(result.gpx));
-        } catch (e) {
-            return cb(e, null);
-        }
+export default function parseGPX(gpxString) {
+    return new Promise((resolve, reject) => {
+        parser.parseString(gpxString, (err, result) => {
+            if (err)
+                reject(err);
+            if (!result.gpx)
+                reject(new Error("Invalid file type."));
+            resolve(extractTrack(result.gpx));
+        });
     });
 }

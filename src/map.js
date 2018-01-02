@@ -59,7 +59,7 @@ export default class GpxMap {
                     }
                 }
             }]
-        }).addTo(this.map)
+        }).addTo(this.map);
 
         leaflet.easyButton({
             type: 'animate',
@@ -138,6 +138,7 @@ export default class GpxMap {
             if (!this.scrolled && this.tracks.length == 0) {
                 this.map.panTo([pos.coords.latitude, pos.coords.longitude], {
                     noMoveStart: true,
+                    animate: false,
                 });
                 // noMoveStart doesn't seem to have an effect, see Leaflet
                 // issue: https://github.com/Leaflet/Leaflet/issues/5396
@@ -163,14 +164,22 @@ export default class GpxMap {
         line.addTo(this.map);
 
         this.tracks.push(line);
+    }
 
+    // Center the map if the user has not yet manually panned the map
+    recenter() {
         if (!this.scrolled)
             this.center();
     }
 
     center() {
+        // If there are no tracks, then don't try to get the bounds, as there
+        // would be an error
+        if (this.tracks.length == 0)
+            return;
         this.map.fitBounds((new L.featureGroup(this.tracks)).getBounds(), {
             noMoveStart: true,
+            animate: false,
             padding: [50, 20],
         });
 
