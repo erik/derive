@@ -45,7 +45,7 @@ the attractions of the terrain and the encounters they find there.
     exportImage: `
 <h3>Export Image</h3>
 
-<form id="settings">
+<form id="export-settings">
     <div class="form-row">
         <label>Format:</label>
         <select name="format">
@@ -60,9 +60,7 @@ the attractions of the terrain and the encounters they find there.
     </div>
 </form>
 
-<div id="export-container">
-    <ul id="export-list"></ul>
-</div>
+<p id="export-output"></p>
 `
 };
 
