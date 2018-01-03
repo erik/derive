@@ -221,6 +221,10 @@ export default class GpxMap {
                 svg.setAttribute('viewBox', `${left} ${top} ${width} ${height}`);
 
                 this.tracks.forEach(track => {
+                    // Project each point from LatLng, scale it up, round to
+                    // nearest 1/10 (by multiplying by 10, rounding and
+                    // dividing), and reducing by removing duplicates (when two
+                    // consecutive points have rounded to the same value)
                     let pts = track.getLatLngs().map(ll =>
                             this.map.project(ll)
                                     .multiplyBy(scale*10)
@@ -235,6 +239,8 @@ export default class GpxMap {
                         return acc;
                     }, []);
                     
+                    // If none of the points on the track are on the screen,
+                    // don't export the track
                     if (!pts.some(pt => bounds.contains(pt))) {
                         return;
                     }
