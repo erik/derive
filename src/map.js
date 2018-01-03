@@ -249,7 +249,7 @@ export default class GpxMap {
 
                     el.setAttribute('stroke', track.options.color);
                     el.setAttribute('stroke-opacity', track.options.opacity);
-                    el.setAttribute('stroke-width', track.options.weight);
+                    el.setAttribute('stroke-width', scale * track.options.weight);
                     el.setAttribute('stroke-linecap', 'round');
                     el.setAttribute('stroke-linejoin', 'round');
                     el.setAttribute('fill', 'none');
