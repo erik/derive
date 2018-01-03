@@ -47,15 +47,11 @@ export default class GpxMap {
                     document.getElementById('render-export').onclick = (e) => {
                         e.preventDefault();
 
-                        let resultNode = document.createElement('li');
-                        let container = document.getElementById('export-list');
+                        let output = document.getElementById('export-output');
+                        output.innerHTML = `Rendering <i class="fa fa-cog fa-spin"></i>`;
 
-                        resultNode.innerText = '... rendering ...';
-                        container.innerText = '';
-                        container.appendChild(resultNode);
-
-                        let elements = document.getElementById('settings').elements;
-                        this.screenshot(elements.format.value, resultNode);
+                        let form = document.getElementById('export-settings').elements;
+                        this.screenshot(form.format.value, output);
                     };
                 }
             }]
@@ -198,48 +194,62 @@ export default class GpxMap {
                 return window.alert(err);
             }
 
-            let anchor = document.createElement('a');
+            let link = document.createElement('a');
 
             if (format === 'png') {
-                anchor.download = 'derive-export.png';
-                anchor.innerText = 'Download as PNG';
+                link.download = 'derive-export.png';
+                link.innerText = 'Download as PNG';
 
                 canvas.toBlob(blob => {
-                    anchor.href = URL.createObjectURL(blob);
-                    domNode.innerHTML = anchor.outerHTML;
+                    link.href = URL.createObjectURL(blob);
+                    domNode.innerText = '';
+                    domNode.appendChild(link);
                 });
             } else if (format === 'svg') {
-                anchor.innerText = 'Download as SVG';
+                link.innerText = 'Download as SVG';
 
-                let origin = this.map.getBounds();
-                let top = origin.getNorthWest();
-                let bot = origin.getSouthEast();
-
-                const width = bot.lng - top.lng;
-                const height = top.lat - bot.lat;
-                const scale = 1000;
-
-                let paths = this.tracks
-                    .map(trk => trk.getLatLngs())
-                    .map(coord => coord.map(c => ({
-                        x: (c.lng - top.lng) * scale,
-                        y: (top.lat - c.lat) * scale
-                    })))
-                    .map(pts => leaflet.SVG.pointsToPath([pts], false));
+                const scale = 2;
+                const left = this.map.getPixelOrigin().x * scale;
+                const top = this.map.getPixelOrigin().y * scale;
+                const width = this.map.getSize().x * scale;
+                const height = this.map.getSize().y * scale;
+                const bounds = leaflet.bounds([left, top], [left+width, top+height]);
 
                 let svg = leaflet.SVG.create('svg');
                 let root = leaflet.SVG.create('g');
 
-                svg.setAttribute('viewBox', `0 0 ${scale * width} ${scale * height}`);
+                svg.setAttribute('viewBox', `${left} ${top} ${width} ${height}`);
 
-                let opts = this.options.lineOptions;
-
-                paths.forEach(path => {
+                this.tracks.forEach(track => {
+                    // Project each point from LatLng, scale it up, round to
+                    // nearest 1/10 (by multiplying by 10, rounding and
+                    // dividing), and reducing by removing duplicates (when two
+                    // consecutive points have rounded to the same value)
+                    let pts = track.getLatLngs().map(ll =>
+                            this.map.project(ll)
+                                    .multiplyBy(scale*10)
+                                    .round()
+                                    .divideBy(10)
+                    ).reduce((acc,next) => {
+                        if (acc.length === 0 ||
+                                acc[acc.length-1].x !== next.x ||
+                                acc[acc.length-1].y !== next.y) {
+                            acc.push(next);
+                        }
+                        return acc;
+                    }, []);
+                    
+                    // If none of the points on the track are on the screen,
+                    // don't export the track
+                    if (!pts.some(pt => bounds.contains(pt))) {
+                        return;
+                    }
+                    let path = leaflet.SVG.pointsToPath([pts], false);
                     let el = leaflet.SVG.create('path');
 
-                    el.setAttribute('stroke', opts.color);
-                    el.setAttribute('stroke-opacity', opts.opacity);
-                    el.setAttribute('stroke-width', opts.weight);
+                    el.setAttribute('stroke', track.options.color);
+                    el.setAttribute('stroke-opacity', track.options.opacity);
+                    el.setAttribute('stroke-width', track.options.weight);
                     el.setAttribute('stroke-linecap', 'round');
                     el.setAttribute('stroke-linejoin', 'round');
                     el.setAttribute('fill', 'none');
@@ -252,12 +262,13 @@ export default class GpxMap {
                 svg.appendChild(root);
 
                 let xml = (new XMLSerializer()).serializeToString(svg);
-                anchor.download = 'derive-export.svg';
+                link.download = 'derive-export.svg';
 
                 let blob = new Blob([xml], {type: 'application/octet-stream'});
-                anchor.href = URL.createObjectURL(blob);
+                link.href = URL.createObjectURL(blob);
 
-                domNode.innerHTML = anchor.outerHTML;
+                domNode.innerText = '';
+                domNode.appendChild(link);
             }
         });
     }
