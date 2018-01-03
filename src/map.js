@@ -222,6 +222,16 @@ export default class GpxMap {
 
                 svg.setAttribute('viewBox', `${left} ${top} ${width} ${height}`);
 
+                if (this.options.theme.indexOf('CartoDB.DarkMatter') === 0) {
+                    let background = leaflet.SVG.create('rect');
+                    background.setAttribute('x', left);
+                    background.setAttribute('y', top);
+                    background.setAttribute('width', width);
+                    background.setAttribute('height', height);
+                    background.setAttribute('fill', 'black');
+                    svg.appendChild(background);
+                }
+
                 this.tracks.forEach(track => {
                     // Project each point from LatLng, scale it up, round to
                     // nearest 1/10 (by multiplying by 10, rounding and
