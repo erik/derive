@@ -209,11 +209,13 @@ export default class GpxMap {
                 link.innerText = 'Download as SVG';
 
                 const scale = 2;
-                const left = this.map.getPixelOrigin().x * scale;
-                const top = this.map.getPixelOrigin().y * scale;
-                const width = this.map.getSize().x * scale;
-                const height = this.map.getSize().y * scale;
-                const bounds = leaflet.bounds([left, top], [left+width, top+height]);
+                const bounds = this.map.getPixelBounds();
+                bounds.min = bounds.min.multiplyBy(scale);
+                bounds.max = bounds.max.multiplyBy(scale);
+                const left = bounds.min.x;
+                const top = bounds.min.y;
+                const width = bounds.getSize().x;
+                const height = bounds.getSize().y;
 
                 let svg = leaflet.SVG.create('svg');
                 let root = leaflet.SVG.create('g');
@@ -249,7 +251,7 @@ export default class GpxMap {
 
                     el.setAttribute('stroke', track.options.color);
                     el.setAttribute('stroke-opacity', track.options.opacity);
-                    el.setAttribute('stroke-width', track.options.weight);
+                    el.setAttribute('stroke-width', scale * track.options.weight);
                     el.setAttribute('stroke-linecap', 'round');
                     el.setAttribute('stroke-linejoin', 'round');
                     el.setAttribute('fill', 'none');
