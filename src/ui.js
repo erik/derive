@@ -82,15 +82,20 @@ function handleFileSelect(map, evt) {
         reader.readAsText(file, 'UTF-8');
     });
 
-    let loadFile = file => openFile(file).then(parseGPX).then(track => {
-        track.filename = file.name;
-        tracks.push(track);
-        console.info('Adding track:', track.name);
-        map.addTrack(track);
-        modal.addSuccess();
-    }, err => {
-        modal.addFailure({name: file.name, error: err});
-    });
+    let loadFile = file => openFile(file)
+        .then(parseGPX)
+        .then(parsedTracks => {
+            parsedTracks.forEach(track => {
+                track.filename = file.name;
+                tracks.push(track);
+                console.info('Adding track:', track.name);
+                map.addTrack(track);
+                modal.addSuccess();
+            });
+        })
+        .catch(err => {
+            modal.addFailure({name: file.name, error: err});
+        });
 
     Promise.all(files.map(loadFile)).then(() => {
         map.recenter();
