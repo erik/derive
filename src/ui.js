@@ -10,6 +10,7 @@ const AVAILABLE_THEMES = [
     'Esri.WorldImagery',
     'OpenStreetMap.Mapnik',
     'OpenStreetMap.BlackAndWhite',
+    'OpenTopoMap',
     'Stamen.Terrain',
     'Stamen.TerrainBackground',
     'Stamen.Toner',
