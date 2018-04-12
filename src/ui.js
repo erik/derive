@@ -77,23 +77,80 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    let openFile = file => new Promise(resolve => {
-        let reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsText(file, 'UTF-8');
+    let parseGpx = file => new Promise(resolve => {
+        parseGPX(file)
+            .then(parsedTracks => {
+                parsedTracks.forEach(track => {
+                    track.filename = file.name;
+                    tracks.push(track);
+                    console.info('Adding track:', track.name);
+                    map.addTrack(track);
+                    modal.addSuccess();
+                });
+            })
+            .then(resolve)
     });
 
-    let loadFile = file => openFile(file)
-        .then(parseGPX)
-        .then(parsedTracks => {
-            parsedTracks.forEach(track => {
-                track.filename = file.name;
-                tracks.push(track);
-                console.info('Adding track:', track.name);
-                map.addTrack(track);
-                modal.addSuccess();
-            });
-        })
+    let handleGpx = file => new Promise(resolve => {
+        console.log("handleGpx");
+        let reader = new FileReader();
+        reader.onload = () => {
+            parseGpx(reader.result);
+            resolve();
+        }
+        reader.readAsText(file, 'UTF-8');        
+    });
+
+    let degMinSecToDecimal = function(dms) {
+        console.log(dms);
+        console.log(dms[0]);
+        return dms[0].numerator + dms[1].numerator /
+            (60 * dms[1].denominator) + dms[2].numerator / 
+            (3600 * dms[2].denominator);
+    };
+
+    let handleImage = file => new Promise(resolve => {
+        EXIF.getData(file, function () {
+            let lat = EXIF.getTag(this, 'GPSLatitude');
+            let latRef = EXIF.getTag(this, 'GPSLatitudeRef');
+            if (!lat) { return; }
+            let latDec = degMinSecToDecimal(lat) * (latRef == 'N' ? 1 : -1);
+            let lng = EXIF.getTag(this, 'GPSLongitude');
+            let lngRef = EXIF.getTag(this, 'GPSLongitudeRef');
+            let lngDec = degMinSecToDecimal(lng) * (lngRef == 'E' ? 1 : -1);
+            let width = EXIF.getTag(this, 'PixelXDimension');
+            let height = EXIF.getTag(this, 'PixelYDimension');
+            console.log("long", latDec, lngDec, latRef, lngRef, width, height);
+
+
+            let reader = new FileReader();
+            reader.onload = () => {
+                map.addImage(latDec, lngDec, reader.result, width, height);
+                resolve();
+            }
+            reader.readAsDataURL(file, 'UTF-8');        
+        });
+    });
+
+    let detectFileType = file => new Promise(resolve => {
+        let extension = file.name.split('.').pop();
+        console.log("detectFileType", extension);
+
+        switch (extension) {
+          case 'gpx':
+            console.log('GPX');
+            handleGpx(file)
+                .then(resolve);
+            break;
+          case 'jpg':
+            console.log('Image');
+            handleImage(file)
+                .then(resolve);
+            break;
+        }
+    });
+
+    let loadFile = file => detectFileType(file)
         .catch(err => {
             modal.addFailure({name: file.name, error: err});
         });

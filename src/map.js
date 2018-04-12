@@ -163,6 +163,27 @@ export default class GpxMap {
         this.tracks.push(line);
     }
 
+    markerClick(lat, lng, image, width, height) {
+        console.log("markerClick");
+        let latlng = leaflet.latLng(lat, lng);
+        var popup = leaflet.popup(latlng)
+            .setLatLng(latlng)
+            .setContent('<img src="' + image + '" width="' + width + '" height="' + height + '">')
+            .addTo(this.map);
+    }
+
+    addImage(lat, lng, image, width, height) {
+        let latlng = leaflet.latLng(lat, lng);
+        console.log("adding to", lat, lng, latlng);
+
+        var popup = leaflet.circleMarker(latlng, { color: "#00ff00", radius: 5 })
+            .on('click', () => {
+                this.markerClick(lat, lng, image, width, height);
+            })
+            .addTo(this.map);
+
+    }
+
     // Center the map if the user has not yet manually panned the map
     recenter() {
         if (!this.scrolled) {
