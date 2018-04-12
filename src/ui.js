@@ -1,6 +1,8 @@
 import picoModal from 'picomodal';
 import parseGPX from './gpx';
+import Image from './image';
 
+let EXIF = require('exif-js');
 
 const AVAILABLE_THEMES = [
     'CartoDB.DarkMatter',
@@ -110,26 +112,37 @@ function handleFileSelect(map, evt) {
     };
 
     let handleImage = file => new Promise(resolve => {
-        EXIF.getData(file, function () {
-            let lat = EXIF.getTag(this, 'GPSLatitude');
-            let latRef = EXIF.getTag(this, 'GPSLatitudeRef');
-            if (!lat) { return; }
-            let latDec = degMinSecToDecimal(lat) * (latRef == 'N' ? 1 : -1);
-            let lng = EXIF.getTag(this, 'GPSLongitude');
-            let lngRef = EXIF.getTag(this, 'GPSLongitudeRef');
-            let lngDec = degMinSecToDecimal(lng) * (lngRef == 'E' ? 1 : -1);
-            let width = EXIF.getTag(this, 'PixelXDimension');
-            let height = EXIF.getTag(this, 'PixelYDimension');
-            console.log("long", latDec, lngDec, latRef, lngRef, width, height);
+        let image = new Image(file);
 
-
-            let reader = new FileReader();
-            reader.onload = () => {
-                map.addImage(latDec, lngDec, reader.result, width, height);
+        image.getImageData()
+            .then((imageData) => {
+                console.log("addImage", image.latitude, image.longitude, image.width, image.height);
+                map.addImage(image.latitude, image.longitude, imageData, image.width, image.height);
                 resolve();
-            }
-            reader.readAsDataURL(file, 'UTF-8');        
-        });
+            })
+            .then(resolve)
+
+
+        // EXIF.getData(file, function () {
+        //     let lat = EXIF.getTag(this, 'GPSLatitude');
+        //     let latRef = EXIF.getTag(this, 'GPSLatitudeRef');
+        //     if (!lat) { return; }
+        //     let latDec = degMinSecToDecimal(lat) * (latRef == 'N' ? 1 : -1);
+        //     let lng = EXIF.getTag(this, 'GPSLongitude');
+        //     let lngRef = EXIF.getTag(this, 'GPSLongitudeRef');
+        //     let lngDec = degMinSecToDecimal(lng) * (lngRef == 'E' ? 1 : -1);
+        //     let width = EXIF.getTag(this, 'PixelXDimension');
+        //     let height = EXIF.getTag(this, 'PixelYDimension');
+        //     console.log("long", latDec, lngDec, latRef, lngRef, width, height);
+
+
+        //     let reader = new FileReader();
+        //     reader.onload = () => {
+        //         map.addImage(latDec, lngDec, reader.result, width, height);
+        //         resolve();
+        //     }
+        //     reader.readAsDataURL(file, 'UTF-8');        
+        // });
     });
 
     let detectFileType = file => new Promise(resolve => {
