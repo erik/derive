@@ -170,7 +170,7 @@ export default class GpxMap {
             image.asImageData().then((imageData) => {
                 leaflet.popup(latlng)
                     .setLatLng(latlng)
-                    .setContent('<img src="' + imageData + '" width="' + image.width + '" height="' + image.height + '">')
+                    .setContent(`<img src="${imageData}" width="${image.width}" height="${image.height}">`)
                     .addTo(this.map);
                 resolve()
             })
