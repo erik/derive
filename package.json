@@ -20,7 +20,7 @@
     "leaflet-providers": "^1.1.15",
     "picomodal": "^3.0.0",
     "style-loader": "^0.13.1",
-    "webpack": "^3.11.0",
+    "webpack": "^3.10.0",
     "xml2js": "^0.4.17"
   }
 }
