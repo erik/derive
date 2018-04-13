@@ -24,7 +24,7 @@ const AVAILABLE_THEMES = [
 const MODAL_CONTENT = {
     help: `
 <h1>dérive</h1>
-<h4>Drag and drop one or more GPX files here</h4>
+<h4>Drag and drop one or more GPX or JPG files here</h4>
 <p>If you use Strava, you can obtain a ZIP file of your activity data
 in GPX format on your <a href="https://www.strava.com/settings/profile">profile
 page</a> and clicking "Download all your activities."
@@ -85,7 +85,6 @@ function handleFileSelect(map, evt) {
                 parsedTracks.forEach(track => {
                     track.filename = file.name;
                     tracks.push(track);
-                    console.info('Adding track:', track.name);
                     map.addTrack(track);
                     modal.addSuccess();
                 });
@@ -94,7 +93,6 @@ function handleFileSelect(map, evt) {
     });
 
     let handleGpx = file => new Promise(resolve => {
-        console.log("handleGpx");
         let reader = new FileReader();
         reader.onload = () => {
             parseGpx(reader.result);
@@ -103,60 +101,30 @@ function handleFileSelect(map, evt) {
         reader.readAsText(file, 'UTF-8');        
     });
 
-    let degMinSecToDecimal = function(dms) {
-        console.log(dms);
-        console.log(dms[0]);
-        return dms[0].numerator + dms[1].numerator /
-            (60 * dms[1].denominator) + dms[2].numerator / 
-            (3600 * dms[2].denominator);
-    };
-
     let handleImage = file => new Promise(resolve => {
         let image = new Image(file);
 
-        image.getImageData()
-            .then((imageData) => {
-                console.log("addImage", image.latitude, image.longitude, image.width, image.height);
-                map.addImage(image.latitude, image.longitude, imageData, image.width, image.height);
-                resolve();
-            })
-            .then(resolve)
+        image.extractExifData().then((image) => {
+            if (!image) {
+                modal.addFailure({name: file.name, error: 'No geolocation data'});
+                return resolve();
+            }
 
-
-        // EXIF.getData(file, function () {
-        //     let lat = EXIF.getTag(this, 'GPSLatitude');
-        //     let latRef = EXIF.getTag(this, 'GPSLatitudeRef');
-        //     if (!lat) { return; }
-        //     let latDec = degMinSecToDecimal(lat) * (latRef == 'N' ? 1 : -1);
-        //     let lng = EXIF.getTag(this, 'GPSLongitude');
-        //     let lngRef = EXIF.getTag(this, 'GPSLongitudeRef');
-        //     let lngDec = degMinSecToDecimal(lng) * (lngRef == 'E' ? 1 : -1);
-        //     let width = EXIF.getTag(this, 'PixelXDimension');
-        //     let height = EXIF.getTag(this, 'PixelYDimension');
-        //     console.log("long", latDec, lngDec, latRef, lngRef, width, height);
-
-
-        //     let reader = new FileReader();
-        //     reader.onload = () => {
-        //         map.addImage(latDec, lngDec, reader.result, width, height);
-        //         resolve();
-        //     }
-        //     reader.readAsDataURL(file, 'UTF-8');        
-        // });
+            map.addImage(image);
+            modal.addSuccess();
+            resolve();    
+        });
     });
 
     let detectFileType = file => new Promise(resolve => {
         let extension = file.name.split('.').pop();
-        console.log("detectFileType", extension);
 
         switch (extension) {
           case 'gpx':
-            console.log('GPX');
             handleGpx(file)
                 .then(resolve);
             break;
           case 'jpg':
-            console.log('Image');
             handleImage(file)
                 .then(resolve);
             break;
@@ -187,7 +155,7 @@ function buildUploadModal(numFiles) {
     let numLoaded = 0;
     let failures = [];
     let getModalContent = () => `
-        <h1>Reading GPX files...</h1>
+        <h1>Reading files...</h1>
         <p>${numLoaded} loaded${
             failures.length ? `, <span class='failures'>${failures.length} failed</span>` : ``
         } of <b>${numFiles}</b></p>`;
@@ -239,7 +207,7 @@ function buildUploadModal(numFiles) {
 
         let failedItems = failures.map(failure => `<li>${failure.name}</li>`);
         modal.setContent(`
-            <h1>GPX files loaded</h1>
+            <h1>Files loaded</h1>
             <p>
                 Loaded ${numLoaded},
                 <span class="failures">

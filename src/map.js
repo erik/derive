@@ -163,22 +163,31 @@ export default class GpxMap {
         this.tracks.push(line);
     }
 
-    markerClick(lat, lng, image, width, height) {
-        console.log("markerClick");
-        let latlng = leaflet.latLng(lat, lng);
-        var popup = leaflet.popup(latlng)
-            .setLatLng(latlng)
-            .setContent('<img src="' + image + '" width="' + width + '" height="' + height + '">')
-            .addTo(this.map);
+    markerClick(image) {
+        let latlng = leaflet.latLng(image.latitude, image.longitude);
+
+        return new Promise(resolve => {
+            image.asImageData().then((imageData) => {
+                leaflet.popup(latlng)
+                    .setLatLng(latlng)
+                    .setContent('<img src="' + imageData + '" width="' + image.width + '" height="' + image.height + '">')
+                    .addTo(this.map);
+                resolve()
+            })
+        });
     }
 
-    addImage(lat, lng, image, width, height) {
+    addImage(image) {
+        let lat = image.latitude
+        let lng = image.longitude
+        let width = image.width
+        let height = image.height
+
         let latlng = leaflet.latLng(lat, lng);
-        console.log("adding to", lat, lng, latlng);
 
         var popup = leaflet.circleMarker(latlng, { color: "#00ff00", radius: 5 })
             .on('click', () => {
-                this.markerClick(lat, lng, image, width, height);
+                this.markerClick(image);
             })
             .addTo(this.map);
 
