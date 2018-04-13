@@ -127,7 +127,7 @@ function handleFileSelect(map, evt) {
                     .then(resolve);
                 break;
             default:
-                console.log(`File ${file.name} is an Unsupported format.`);
+                console.log(`File ${file.name} is an unsupported format.`);
                 modal.addFailure({name: file.name, error: 'Unsupported file format'});
                 resolve();
         }
