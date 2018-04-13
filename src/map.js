@@ -172,20 +172,18 @@ export default class GpxMap {
                     .setLatLng(latlng)
                     .setContent(`<img src="${imageData}" width="${image.width}" height="${image.height}">`)
                     .addTo(this.map);
-                resolve()
-            })
+                resolve();
+            });
         });
     }
 
     addImage(image) {
-        let lat = image.latitude
-        let lng = image.longitude
-        let width = image.width
-        let height = image.height
+        let lat = image.latitude;
+        let lng = image.longitude;
 
         let latlng = leaflet.latLng(lat, lng);
 
-        var popup = leaflet.circleMarker(latlng, { color: "#00ff00", radius: 5 })
+        leaflet.circleMarker(latlng, { color: '#00ff00', radius: 5 })
             .on('click', () => {
                 this.markerClick(image);
             })

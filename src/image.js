@@ -1,4 +1,4 @@
-let EXIF = require('exif-js');
+import EXIF from 'exif-js';
 
 
 function degMinSecToDecimal(dms) {
@@ -31,11 +31,11 @@ export default class Image {
                     return resolve(null); 
                 }
 
-                let latDecimal = degMinSecToDecimal(lat)
-                let lngDecimal = degMinSecToDecimal(lng)
+                let latDecimal = degMinSecToDecimal(lat);
+                let lngDecimal = degMinSecToDecimal(lng);
 
-                let latMultiplier = latRef == 'N' ? 1 : -1;
-                let lngMultiplier = lngRef == 'E' ? 1 : -1;
+                let latMultiplier = latRef === 'N' ? 1 : -1;
+                let lngMultiplier = lngRef === 'E' ? 1 : -1;
 
                 self.latitude = latDecimal * latMultiplier;                
                 self.longitude = lngDecimal * lngMultiplier;
@@ -51,7 +51,7 @@ export default class Image {
             let reader = new FileReader();
             reader.onload = () => {
                 resolve(reader.result);
-            }
+            };
             reader.readAsDataURL(this.imageFile, 'UTF-8');                    
         });
     }

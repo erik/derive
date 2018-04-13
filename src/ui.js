@@ -2,8 +2,6 @@ import picoModal from 'picomodal';
 import parseGPX from './gpx';
 import Image from './image';
 
-let EXIF = require('exif-js');
-
 const AVAILABLE_THEMES = [
     'CartoDB.DarkMatter',
     'CartoDB.DarkMatterNoLabels',
@@ -89,7 +87,7 @@ function handleFileSelect(map, evt) {
                     modal.addSuccess();
                 });
             })
-            .then(resolve)
+            .then(resolve);
     });
 
     let handleGpx = file => new Promise(resolve => {
@@ -97,7 +95,7 @@ function handleFileSelect(map, evt) {
         reader.onload = () => {
             parseGpx(reader.result);
             resolve();
-        }
+        };
         reader.readAsText(file, 'UTF-8');        
     });
 
