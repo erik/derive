@@ -27,6 +27,7 @@ export default class GpxMap {
     constructor(options) {
         this.options = options || DEFAULT_OPTIONS;
         this.tracks = [];
+        this.imageMarkers = [];
 
         this.map = leaflet.map('background-map', {
             center: INIT_COORDS,
@@ -183,12 +184,13 @@ export default class GpxMap {
 
         let latlng = leaflet.latLng(lat, lng);
 
-        leaflet.circleMarker(latlng, { color: '#00ff00', radius: 5 })
+        let marker = leaflet.circleMarker(latlng, { color: '#00ff00', radius: 5 })
             .on('click', () => {
                 this.markerClick(image);
             })
             .addTo(this.map);
 
+        this.imageMarkers.push(marker);
     }
 
     // Center the map if the user has not yet manually panned the map
@@ -201,11 +203,13 @@ export default class GpxMap {
     center() {
         // If there are no tracks, then don't try to get the bounds, as there
         // would be an error
-        if (this.tracks.length === 0) {
+        if (this.tracks.length === 0 && this.imageMarkers.length === 0) {
             return;
         }
 
-        this.map.fitBounds((new leaflet.featureGroup(this.tracks)).getBounds(), {
+        let tracksAndImages = this.tracks.concat(this.imageMarkers);
+
+        this.map.fitBounds((new leaflet.featureGroup(tracksAndImages)).getBounds(), {
             noMoveStart: true,
             animate: false,
             padding: [50, 20],
