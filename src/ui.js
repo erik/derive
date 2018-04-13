@@ -139,7 +139,7 @@ function handleFileSelect(map, evt) {
         });
 
     Promise.all(files.map(loadFile)).then(() => {
-        map.recenter();
+        map.center();
 
         modal.finished();
     });
