@@ -118,14 +118,18 @@ function handleFileSelect(map, evt) {
         let extension = file.name.split('.').pop();
 
         switch (extension) {
-          case 'gpx':
-            handleGpx(file)
-                .then(resolve);
-            break;
-          case 'jpg':
-            handleImage(file)
-                .then(resolve);
-            break;
+            case 'gpx':
+                handleGpx(file)
+                    .then(resolve);
+                break;
+            case 'jpg':
+                handleImage(file)
+                    .then(resolve);
+                break;
+            default:
+                console.log(`File ${file.name} is an Unsupported format.`);
+                modal.addFailure({name: file.name, error: 'Unsupported file format'});
+                resolve();
         }
     });
 
