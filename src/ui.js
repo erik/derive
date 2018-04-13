@@ -115,7 +115,7 @@ function handleFileSelect(map, evt) {
     });
 
     let detectFileType = file => new Promise(resolve => {
-        let extension = file.name.split('.').pop();
+        let extension = file.name.split('.').pop().toLowerCase();
 
         switch (extension) {
             case 'gpx':
