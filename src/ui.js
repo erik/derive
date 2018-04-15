@@ -126,14 +126,12 @@ function handleFileSelect(map, evt) {
                 modal.addFailure({name: file.name, error: 'Unsupported file format'});
                 resolve();
         }
+    })
+    .catch(err => {
+        modal.addFailure({name: file.name, error: err});
     });
 
-    let loadFile = file => detectFileType(file)
-        .catch(err => {
-            modal.addFailure({name: file.name, error: err});
-        });
-
-    Promise.all(files.map(loadFile)).then(() => {
+    Promise.all(files.map(detectFileType)).then(() => {
         map.center();
 
         modal.finished();
