@@ -131,8 +131,8 @@ export default class GpxMap {
                 t.redraw();
             });
 
+            let markerOptions = opts.markerOptions;
             this.imageMarkers.forEach(i => {
-                let markerOptions = opts.markerOptions;
                 i.setStyle({
                     color: markerOptions.color,
                     weight: markerOptions.weight,
