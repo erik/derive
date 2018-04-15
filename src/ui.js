@@ -280,6 +280,29 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
     </span>
 
     <span class="form-row">
+        <label>Marker color</label>
+        <input name="markerColor" type="color" value=${opts.markerOptions.color}>
+    </span>
+
+    <span class="form-row">
+        <label>Marker opacity</label>
+        <input name="markerOpacity" type="range" min=0 max=1 step=0.01
+            value=${opts.markerOptions.opacity}>
+    </span>
+
+    <span class="form-row">
+        <label>Marker width</label>
+        <input name="markerWeight" type="number" min=1 max=100
+            value=${opts.markerOptions.weight}>
+    </span>
+
+    <span class="form-row">
+        <label>Marker radius</label>
+        <input name="markerRadius" type="number" min=1 max=100
+            value=${opts.markerOptions.radius}>
+    </span>
+
+    <span class="form-row">
         <label>Override existing tracks</label>
         <input name="overrideExisting" type="checkbox" ${overrideExisting}>
     </span>
@@ -310,6 +333,11 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
 
         for (let opt of ['color', 'weight', 'opacity']) {
             options.lineOptions[opt] = elements[opt].value;
+        }
+
+        for (let opt of ['markerColor', 'markerWeight', 'markerOpacity', 'markerRadius']) {
+            let optionName = opt.replace('marker', '').toLowerCase();
+            options.markerOptions[optionName] = elements[opt].value;
         }
 
         for (let opt of ['overrideExisting', 'detectColors']) {

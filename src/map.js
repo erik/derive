@@ -19,6 +19,12 @@ const DEFAULT_OPTIONS = {
         smoothFactor: 1,
         overrideExisting: true,
         detectColors: true,
+    },
+    markerOptions: {
+        color: '#00FF00',
+        weight: 3,
+        radius: 5,
+        opacity: 0.5
     }
 };
 
@@ -124,6 +130,19 @@ export default class GpxMap {
 
                 t.redraw();
             });
+
+            this.imageMarkers.forEach(i => {
+                let markerOptions = opts.markerOptions;
+                i.setStyle({
+                    color: markerOptions.color,
+                    weight: markerOptions.weight,
+                    opacity: markerOptions.opacity,
+                    radius: markerOptions.radius
+                });
+
+                i.redraw();
+            });
+
         }
 
         this.options = opts;
@@ -183,8 +202,9 @@ export default class GpxMap {
         let lng = image.longitude;
 
         let latlng = leaflet.latLng(lat, lng);
+        let markerOptions = Object.assign({}, this.options.markerOptions);
 
-        let marker = leaflet.circleMarker(latlng, { color: '#00ff00', radius: 5 })
+        let marker = leaflet.circleMarker(latlng, markerOptions)
             .on('click', () => {
                 this.markerClick(image);
             })
