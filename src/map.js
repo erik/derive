@@ -187,7 +187,7 @@ export default class GpxMap {
         let latlng = leaflet.latLng(image.latitude, image.longitude);
 
         return new Promise(resolve => {
-            image.asImageData().then((imageData) => {
+            image.getImageData().then((imageData) => {
                 leaflet.popup(latlng)
                     .setLatLng(latlng)
                     .setContent(`<img src="${imageData}" width="${image.width}" height="${image.height}">`)

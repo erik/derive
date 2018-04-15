@@ -10,13 +10,14 @@ function degMinSecToDecimal(dms) {
 export default class Image {
     constructor(imageFile) {
         this.imageFile = imageFile;
-        this.hasParsed = false;
+        this.imageData = null;
+        this.hasParsedExif = false;
     }
 
     extractExifData() {
         let self = this;
         return new Promise(resolve => {
-            if (self.hasParsed) { resolve(self); }
+            if (self.hasParsedExif) { resolve(self); }
             EXIF.getData(this.imageFile, function() {
                 self.width = EXIF.getTag(this, 'PixelXDimension');
                 self.height = EXIF.getTag(this, 'PixelYDimension');
@@ -40,17 +41,23 @@ export default class Image {
                 self.latitude = latDecimal * latMultiplier;                
                 self.longitude = lngDecimal * lngMultiplier;
 
-                self.hasParsed = true;
+                self.hasParsedExif = true;
                 resolve(self);
             });
         });
     }
 
-    asImageData() {
+    getImageData() {
+        let self = this;
         return new Promise(resolve => {
+            if (self.imageData != null) {
+                return resolve(self.imageData);
+            }
+
             let reader = new FileReader();
             reader.onload = () => {
-                resolve(reader.result);
+                self.imageData = reader.result;
+                return resolve(reader.result);
             };
             reader.readAsDataURL(this.imageFile, 'UTF-8');                    
         });
