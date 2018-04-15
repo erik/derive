@@ -77,26 +77,21 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    let parseGpx = file => new Promise(resolve => {
-        parseGPX(file)
-            .then(parsedTracks => {
-                parsedTracks.forEach(track => {
-                    track.filename = file.name;
-                    tracks.push(track);
-                    map.addTrack(track);
-                    modal.addSuccess();
-                });
-            })
-            .then(resolve);
-    });
-
     let handleGpx = file => new Promise(resolve => {
         let reader = new FileReader();
         reader.onload = () => {
-            parseGpx(reader.result);
-            resolve();
+            parseGPX(reader.result)
+                .then(parsedTracks => {
+                    parsedTracks.forEach(track => {
+                        track.filename = file.name;
+                        tracks.push(track);
+                        map.addTrack(track);
+                        modal.addSuccess();
+                    });
+                })
+                .then(resolve);
         };
-        reader.readAsText(file, 'UTF-8');        
+        reader.readAsText(file, 'UTF-8');
     });
 
     let handleImage = file => new Promise(resolve => {
@@ -110,7 +105,7 @@ function handleFileSelect(map, evt) {
 
             map.addImage(image);
             modal.addSuccess();
-            resolve();    
+            resolve();
         });
     });
 
