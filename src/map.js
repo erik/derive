@@ -39,7 +39,7 @@ export default class GpxMap {
             states: [{
                 icon: 'fa-camera fa-lg',
                 stateName: 'default',
-                title: 'Export as png',
+                title: 'Export data',
                 onClick: (_btn, _map) => {
                     let modal = showModal('exportImage')
                         .afterClose(() => modal.destroy());
@@ -51,7 +51,7 @@ export default class GpxMap {
                         output.innerHTML = `Rendering <i class="fa fa-cog fa-spin"></i>`;
 
                         let form = document.getElementById('export-settings').elements;
-                        this.screenshot(form.format.value, output);
+                        this.export(form.format.value, output);
                     };
                 }
             }]
@@ -188,7 +188,7 @@ export default class GpxMap {
         }
     }
 
-    screenshot(format, domNode) {
+    export(format, domNode) {
         leafletImage(this.map, (err, canvas) => {
             if (err) {
                 return window.alert(err);
@@ -240,12 +240,13 @@ export default class GpxMap {
                         }
                         return acc;
                     }, []);
-                    
+
                     // If none of the points on the track are on the screen,
                     // don't export the track
                     if (!pts.some(pt => bounds.contains(pt))) {
                         return;
                     }
+
                     let path = leaflet.SVG.pointsToPath([pts], false);
                     let el = leaflet.SVG.create('path');
 
@@ -271,7 +272,35 @@ export default class GpxMap {
 
                 domNode.innerText = '';
                 domNode.appendChild(link);
+            } else if (format === 'geojson') {
+                link.download = 'derive-export.geojson';
+                link.innerText = 'Download as GeoJSON';
+
+                const geojson = {
+                    type: 'FeatureCollection',
+                    features: this.tracks.map(track => {
+                        return {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'LineString',
+                                coordinates: track.getLatLngs()
+                            },
+                            properties: {
+                                color: track.color
+                            }
+                        };
+                    })
+                };
+
+                const blob = new Blob([JSON.stringify(geojson)],
+                                      {type: 'application/json'});
+
+                link.href = URL.createObjectURL(blob);
+                domNode.innerText = '';
+                domNode.appendChild(link);
             }
+
+
         });
     }
 }

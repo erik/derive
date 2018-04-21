@@ -52,6 +52,7 @@ the attractions of the terrain and the encounters they find there.
         <select name="format">
             <option selected value="png">PNG</option>
             <option value="svg">SVG (no background map)</option>
+            <option value="geojson">GeoJSON</option>
         </select>
     </div>
 
@@ -100,7 +101,6 @@ function handleFileSelect(map, evt) {
 
     Promise.all(files.map(loadFile)).then(() => {
         map.recenter();
-
         modal.finished();
     });
 }
