@@ -186,20 +186,17 @@ export default class GpxMap {
     async markerClick(image) {
         const latitude = await image.latitude();
         const longitude = await image.longitude();
-        const width = await image.width();
-        const height = await image.height();
         const imageData = await image.getImageData();
 
         let latlng = leaflet.latLng(latitude, longitude);
 
-        leaflet.popup()
+        leaflet.popup({minWidth: 512})
             .setLatLng(latlng)
-            .setContent(`<img src="${imageData}" width="${width}" height="${height}">`)
+            .setContent(`<img src="${imageData}" width="512" height="100%">`)
             .addTo(this.map);
     }
 
     async addImage(image) {
-        const self = this;
         const lat = await image.latitude();
         const lng = await image.longitude();
 
@@ -208,7 +205,7 @@ export default class GpxMap {
 
         let marker = leaflet.circleMarker(latlng, markerOptions)
             .on('click', () => {
-                self.markerClick(image);
+                this.markerClick(image);
             })
             .addTo(this.map);
 
@@ -294,7 +291,7 @@ export default class GpxMap {
                         }
                         return acc;
                     }, []);
-                    
+
                     // If none of the points on the track are on the screen,
                     // don't export the track
                     if (!pts.some(pt => bounds.contains(pt))) {

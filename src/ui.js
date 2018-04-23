@@ -90,7 +90,7 @@ function handleFileSelect(map, evt) {
             map.addTrack(track);
             modal.addSuccess();
         }
-    }
+    };
 
     const handleImage = async file => {
         const image = new Image(file);
@@ -98,7 +98,7 @@ function handleFileSelect(map, evt) {
         if (!hasGeolocationData) { throw 'No geolocation data'; }
         await map.addImage(image);
         modal.addSuccess();
-    }
+    };
 
     const handleFile = async file => {
         const extension = file.name.split('.').pop().toLowerCase();
@@ -116,7 +116,7 @@ function handleFileSelect(map, evt) {
             console.log(err);
             modal.addFailure({name: file.name, error: err});
         }
-    }
+    };
 
 
     Promise.all(files.map(handleFile)).then(() => {
