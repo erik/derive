@@ -12,6 +12,7 @@
     "@babel/core": "^7.0.0-beta.36",
     "@babel/preset-env": "^7.0.0-beta.36",
     "babel-loader": "^8.0.0-beta.0",
+    "babel-polyfill": "^6.26.0",
     "css-loader": "^0.25.0",
     "exif-js": "^2.3.0",
     "leaflet": "^1.0.1",
