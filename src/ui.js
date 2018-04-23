@@ -242,45 +242,55 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
         </select>
     </span>
 
-    <span class="form-row">
-        <label>Line color</label>
-        <input name="color" type="color" value=${opts.lineOptions.color}>
-    </span>
+    <fieldset class="form-group">
+        <legend>GPX Options</legend>
 
-    <span class="form-row">
-        <label>Line opacity</label>
-        <input name="opacity" type="range" min=0 max=1 step=0.01
-            value=${opts.lineOptions.opacity}>
-    </span>
+        <div class="row">
+            <label>Color</label>
+            <input name="color" type="color" value=${opts.lineOptions.color}>
+        </div>
 
-    <span class="form-row">
-        <label>Line width</label>
-        <input name="weight" type="number" min=1 max=100
-            value=${opts.lineOptions.weight}>
-    </span>
+        <div class="row">
+            <label>Opacity</label>
+            <input name="opacity" type="range" min=0 max=1 step=0.01
+                value=${opts.lineOptions.opacity}>
+        </div>
 
-    <span class="form-row">
-        <label>Marker color</label>
-        <input name="markerColor" type="color" value=${opts.markerOptions.color}>
-    </span>
+        <div class="row">
+            <label>Width</label>
+            <input name="weight" type="number" min=1 max=100
+                value=${opts.lineOptions.weight}>
+        </div>
 
-    <span class="form-row">
-        <label>Marker opacity</label>
-        <input name="markerOpacity" type="range" min=0 max=1 step=0.01
-            value=${opts.markerOptions.opacity}>
-    </span>
+    </fieldset>
 
-    <span class="form-row">
-        <label>Marker width</label>
-        <input name="markerWeight" type="number" min=1 max=100
-            value=${opts.markerOptions.weight}>
-    </span>
+    <fieldset class="form-group">
+        <legend>Image Marker Options</legend>
 
-    <span class="form-row">
-        <label>Marker radius</label>
-        <input name="markerRadius" type="number" min=1 max=100
-            value=${opts.markerOptions.radius}>
-    </span>
+        <div class="row">
+            <label>Color</label>
+            <input name="markerColor" type="color" value=${opts.markerOptions.color}>
+        </div>
+
+        <div class="row">
+            <label>Opacity</label>
+            <input name="markerOpacity" type="range" min=0 max=1 step=0.01
+                value=${opts.markerOptions.opacity}>
+        </div>
+
+        <div class="row">
+            <label>Width</label>
+            <input name="markerWeight" type="number" min=1 max=100
+                value=${opts.markerOptions.weight}>
+        </div>
+
+        <div class="row">
+            <label>Radius</label>
+            <input name="markerRadius" type="number" min=1 max=100
+                value=${opts.markerOptions.radius}>
+        </div>
+
+    </fieldset>
 
     <span class="form-row">
         <label>Override existing tracks</label>
