@@ -34,7 +34,7 @@ export default class Image {
         const latitude = EXIF.getTag(this.imageFile, 'GPSLatitude');
         const latRef = EXIF.getTag(this.imageFile, 'GPSLatitudeRef');
 
-        if (!latitude || !latRef) throw 'No latitude data';
+        if (!latitude || !latRef) { throw 'No latitude data'; }
 
         return degMinSecToDecimal(latitude, latRef === 'S');
     }
@@ -44,7 +44,7 @@ export default class Image {
         const longitude = EXIF.getTag(this.imageFile, 'GPSLongitude');
         const lngRef = EXIF.getTag(this.imageFile, 'GPSLongitudeRef');
 
-        if (!longitude || !lngRef) throw 'No longitude data';
+        if (!longitude || !lngRef) { throw 'No longitude data'; }
 
         return degMinSecToDecimal(longitude, lngRef === 'W');
     }

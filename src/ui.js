@@ -95,7 +95,7 @@ function handleFileSelect(map, evt) {
     const handleImage = async file => {
         const image = new Image(file);
         const hasGeolocationData = await image.hasGeolocationData();
-        if (!hasGeolocationData) throw 'No geolocation data';
+        if (!hasGeolocationData) { throw 'No geolocation data'; }
         await map.addImage(image);
         modal.addSuccess();
     }
@@ -137,7 +137,7 @@ function handleDragOver(evt) {
 function buildUploadModal(numFiles) {
     let numLoaded = 0;
     let failures = [];
-    let failureString = failures.length ? `, <span class='failures'>${failures.length} failed</span>` : ``;
+    let failureString = failures.length ? `, <span class='failures'>${failures.length} failed</span>` : '';
     let getModalContent = () => `
         <h1>Reading files...</h1>
         <p>${numLoaded} loaded${failureString} of <b>${numFiles}</b></p>`;
