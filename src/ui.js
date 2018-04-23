@@ -1,6 +1,7 @@
+import 'babel-polyfill';
 import picoModal from 'picomodal';
 import parseGPX from './gpx';
-
+import Image from './image';
 
 const AVAILABLE_THEMES = [
     'CartoDB.DarkMatter',
@@ -22,7 +23,7 @@ const AVAILABLE_THEMES = [
 const MODAL_CONTENT = {
     help: `
 <h1>dérive</h1>
-<h4>Drag and drop one or more GPX files here</h4>
+<h4>Drag and drop one or more GPX or JPG files here</h4>
 <p>If you use Strava, you can obtain a ZIP file of your activity data
 in GPX format on your <a href="https://www.strava.com/settings/profile">profile
 page</a> and clicking "Download all your activities."
@@ -77,29 +78,49 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    let openFile = file => new Promise(resolve => {
-        let reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsText(file, 'UTF-8');
-    });
-
-    let loadFile = file => openFile(file)
-        .then(parseGPX)
-        .then(parsedTracks => {
-            parsedTracks.forEach(track => {
-                track.filename = file.name;
-                tracks.push(track);
-                console.info('Adding track:', track.name);
-                map.addTrack(track);
-                modal.addSuccess();
-            });
-        })
-        .catch(err => {
-            modal.addFailure({name: file.name, error: err});
+    const handleGPX = async file => {
+        const fileContents = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsText(file, 'UTF-8');
         });
+        for (const track of await parseGPX(fileContents)) {
+            track.filename = file.name;
+            tracks.push(track);
+            map.addTrack(track);
+            modal.addSuccess();
+        }
+    };
 
-    Promise.all(files.map(loadFile)).then(() => {
-        map.recenter();
+    const handleImage = async file => {
+        const image = new Image(file);
+        const hasGeolocationData = await image.hasGeolocationData();
+        if (!hasGeolocationData) { throw 'No geolocation data'; }
+        await map.addImage(image);
+        modal.addSuccess();
+    };
+
+    const handleFile = async file => {
+        const extension = file.name.split('.').pop().toLowerCase();
+        try {
+            switch (extension) {
+                case 'gpx':
+                    return await handleGPX(file);
+                case 'jpg':
+                case 'jpeg':
+                    return await handleImage(file);
+                default:
+                    throw 'Unsupported file format';
+            }
+        } catch (err) {
+            console.log(err);
+            modal.addFailure({name: file.name, error: err});
+        }
+    };
+
+
+    Promise.all(files.map(handleFile)).then(() => {
+        map.center();
 
         modal.finished();
     });
@@ -116,11 +137,10 @@ function handleDragOver(evt) {
 function buildUploadModal(numFiles) {
     let numLoaded = 0;
     let failures = [];
+    let failureString = failures.length ? `, <span class='failures'>${failures.length} failed</span>` : '';
     let getModalContent = () => `
-        <h1>Reading GPX files...</h1>
-        <p>${numLoaded} loaded${
-            failures.length ? `, <span class='failures'>${failures.length} failed</span>` : ``
-        } of <b>${numFiles}</b></p>`;
+        <h1>Reading files...</h1>
+        <p>${numLoaded} loaded${failureString} of <b>${numFiles}</b></p>`;
 
     let modal = picoModal({
         content: getModalContent(),
@@ -169,7 +189,7 @@ function buildUploadModal(numFiles) {
 
         let failedItems = failures.map(failure => `<li>${failure.name}</li>`);
         modal.setContent(`
-            <h1>GPX files loaded</h1>
+            <h1>Files loaded</h1>
             <p>
                 Loaded ${numLoaded},
                 <span class="failures">
@@ -222,22 +242,55 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
         </select>
     </span>
 
-    <span class="form-row">
-        <label>Line color</label>
-        <input name="color" type="color" value=${opts.lineOptions.color}>
-    </span>
+    <fieldset class="form-group">
+        <legend>GPX Options</legend>
 
-    <span class="form-row">
-        <label>Line opacity</label>
-        <input name="opacity" type="range" min=0 max=1 step=0.01
-            value=${opts.lineOptions.opacity}>
-    </span>
+        <div class="row">
+            <label>Color</label>
+            <input name="color" type="color" value=${opts.lineOptions.color}>
+        </div>
 
-    <span class="form-row">
-        <label>Line width</label>
-        <input name="weight" type="number" min=1 max=100
-            value=${opts.lineOptions.weight}>
-    </span>
+        <div class="row">
+            <label>Opacity</label>
+            <input name="opacity" type="range" min=0 max=1 step=0.01
+                value=${opts.lineOptions.opacity}>
+        </div>
+
+        <div class="row">
+            <label>Width</label>
+            <input name="weight" type="number" min=1 max=100
+                value=${opts.lineOptions.weight}>
+        </div>
+
+    </fieldset>
+
+    <fieldset class="form-group">
+        <legend>Image Marker Options</legend>
+
+        <div class="row">
+            <label>Color</label>
+            <input name="markerColor" type="color" value=${opts.markerOptions.color}>
+        </div>
+
+        <div class="row">
+            <label>Opacity</label>
+            <input name="markerOpacity" type="range" min=0 max=1 step=0.01
+                value=${opts.markerOptions.opacity}>
+        </div>
+
+        <div class="row">
+            <label>Width</label>
+            <input name="markerWeight" type="number" min=1 max=100
+                value=${opts.markerOptions.weight}>
+        </div>
+
+        <div class="row">
+            <label>Radius</label>
+            <input name="markerRadius" type="number" min=1 max=100
+                value=${opts.markerOptions.radius}>
+        </div>
+
+    </fieldset>
 
     <span class="form-row">
         <label>Override existing tracks</label>
@@ -270,6 +323,11 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
 
         for (let opt of ['color', 'weight', 'opacity']) {
             options.lineOptions[opt] = elements[opt].value;
+        }
+
+        for (let opt of ['markerColor', 'markerWeight', 'markerOpacity', 'markerRadius']) {
+            let optionName = opt.replace('marker', '').toLowerCase();
+            options.markerOptions[optionName] = elements[opt].value;
         }
 
         for (let opt of ['overrideExisting', 'detectColors']) {

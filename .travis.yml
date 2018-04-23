@@ -3,6 +3,6 @@ node_js:
   - node
 install:
   - npm install
-  - npm install -g jshint
+  - npm install -g eslint
 script:
-  - jshint --verbose src/*
+  - eslint src/*
