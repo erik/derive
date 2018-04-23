@@ -19,6 +19,12 @@ const DEFAULT_OPTIONS = {
         smoothFactor: 1,
         overrideExisting: true,
         detectColors: true,
+    },
+    markerOptions: {
+        color: '#00FF00',
+        weight: 3,
+        radius: 5,
+        opacity: 0.5
     }
 };
 
@@ -27,6 +33,7 @@ export default class GpxMap {
     constructor(options) {
         this.options = options || DEFAULT_OPTIONS;
         this.tracks = [];
+        this.imageMarkers = [];
 
         this.map = leaflet.map('background-map', {
             center: INIT_COORDS,
@@ -123,6 +130,19 @@ export default class GpxMap {
 
                 t.redraw();
             });
+
+            let markerOptions = opts.markerOptions;
+            this.imageMarkers.forEach(i => {
+                i.setStyle({
+                    color: markerOptions.color,
+                    weight: markerOptions.weight,
+                    opacity: markerOptions.opacity,
+                    radius: markerOptions.radius
+                });
+
+                i.redraw();
+            });
+
         }
 
         this.options = opts;
@@ -163,6 +183,38 @@ export default class GpxMap {
         this.tracks.push(line);
     }
 
+    async markerClick(image) {
+        const latitude = await image.latitude();
+        const longitude = await image.longitude();
+        const width = await image.width();
+        const height = await image.height();
+        const imageData = await image.getImageData();
+
+        let latlng = leaflet.latLng(latitude, longitude);
+
+        leaflet.popup()
+            .setLatLng(latlng)
+            .setContent(`<img src="${imageData}" width="${width}" height="${height}">`)
+            .addTo(this.map);
+    }
+
+    async addImage(image) {
+        const self = this;
+        const lat = await image.latitude();
+        const lng = await image.longitude();
+
+        let latlng = leaflet.latLng(lat, lng);
+        let markerOptions = Object.assign({}, this.options.markerOptions);
+
+        let marker = leaflet.circleMarker(latlng, markerOptions)
+            .on('click', () => {
+                self.markerClick(image);
+            })
+            .addTo(this.map);
+
+        this.imageMarkers.push(marker);
+    }
+
     // Center the map if the user has not yet manually panned the map
     recenter() {
         if (!this.scrolled) {
@@ -173,11 +225,13 @@ export default class GpxMap {
     center() {
         // If there are no tracks, then don't try to get the bounds, as there
         // would be an error
-        if (this.tracks.length === 0) {
+        if (this.tracks.length === 0 && this.imageMarkers.length === 0) {
             return;
         }
 
-        this.map.fitBounds((new leaflet.featureGroup(this.tracks)).getBounds(), {
+        let tracksAndImages = this.tracks.concat(this.imageMarkers);
+
+        this.map.fitBounds((new leaflet.featureGroup(tracksAndImages)).getBounds(), {
             noMoveStart: true,
             animate: false,
             padding: [50, 20],
