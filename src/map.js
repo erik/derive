@@ -40,7 +40,7 @@ export default class GpxMap {
                 icon: 'fa-camera fa-lg',
                 stateName: 'default',
                 title: 'Export as png',
-                onClick: (_btn, _map) => {
+                onClick: () => {
                     let modal = showModal('exportImage')
                         .afterClose(() => modal.destroy());
 
@@ -48,7 +48,7 @@ export default class GpxMap {
                         e.preventDefault();
 
                         let output = document.getElementById('export-output');
-                        output.innerHTML = `Rendering <i class="fa fa-cog fa-spin"></i>`;
+                        output.innerHTML = 'Rendering <i class="fa fa-cog fa-spin"></i>';
 
                         let form = document.getElementById('export-settings').elements;
                         this.screenshot(form.format.value, output);
@@ -63,7 +63,7 @@ export default class GpxMap {
                 icon: 'fa-sliders fa-lg',
                 stateName: 'default',
                 title: 'Open settings dialog',
-                onClick: (_btn, _map) => {
+                onClick: () => {
                     buildSettingsModal(this.tracks, this.options, (opts) => {
                         this.updateOptions(opts);
                     }).show();
@@ -77,7 +77,7 @@ export default class GpxMap {
                 icon: 'fa-map fa-lg',
                 stateName: 'default',
                 title: 'Zoom to all tracks',
-                onClick: (_btn, map) => {
+                onClick: () => {
                     this.center();
                 },
             }],

@@ -119,7 +119,7 @@ function buildUploadModal(numFiles) {
     let getModalContent = () => `
         <h1>Reading GPX files...</h1>
         <p>${numLoaded} loaded${
-            failures.length ? `, <span class='failures'>${failures.length} failed</span>` : ``
+            failures.length ? `, <span class='failures'>${failures.length} failed</span>` : ''
         } of <b>${numFiles}</b></p>`;
 
     let modal = picoModal({
