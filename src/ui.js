@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import picoModal from 'picomodal';
 import parseGPX from './gpx';
 import Image from './image';
@@ -16,7 +17,7 @@ const AVAILABLE_THEMES = [
     'Stamen.Toner',
     'Stamen.TonerLite',
     'Stamen.TonerBackground',
-    'Stamen.Watercolor',
+    'Stamen.Watercolor'
 ];
 
 const MODAL_CONTENT = {
@@ -77,61 +78,48 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    let handleGpx = file => new Promise(resolve => {
-        let reader = new FileReader();
-        reader.onload = () => {
-            parseGPX(reader.result)
-                .then(parsedTracks => {
-                    parsedTracks.forEach(track => {
-                        track.filename = file.name;
-                        tracks.push(track);
-                        map.addTrack(track);
-                        modal.addSuccess();
-                    });
-                })
-                .then(resolve);
-        };
-        reader.readAsText(file, 'UTF-8');
-    });
-
-    let handleImage = file => new Promise(resolve => {
-        let image = new Image(file);
-
-        image.extractExifData().then((image) => {
-            if (!image) {
-                modal.addFailure({name: file.name, error: 'No geolocation data'});
-                return resolve();
-            }
-
-            map.addImage(image);
-            modal.addSuccess();
-            resolve();
+    const handleGPX = async file => {
+        const fileContents = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsText(file, 'UTF-8');
         });
-    });
-
-    let detectFileType = file => new Promise(resolve => {
-        let extension = file.name.split('.').pop().toLowerCase();
-
-        switch (extension) {
-            case 'gpx':
-                handleGpx(file)
-                    .then(resolve);
-                break;
-            case 'jpg':
-                handleImage(file)
-                    .then(resolve);
-                break;
-            default:
-                console.log(`File ${file.name} is an unsupported format.`);
-                modal.addFailure({name: file.name, error: 'Unsupported file format'});
-                resolve();
+        for (const track of await parseGPX(fileContents)) {
+            track.filename = file.name;
+            tracks.push(track);
+            map.addTrack(track);
+            modal.addSuccess();
         }
-    })
-    .catch(err => {
-        modal.addFailure({name: file.name, error: err});
-    });
+    }
 
-    Promise.all(files.map(detectFileType)).then(() => {
+    const handleImage = async file => {
+        const image = new Image(file);
+        const hasGeolocationData = await image.hasGeolocationData();
+        if (!hasGeolocationData) throw 'No geolocation data';
+        await map.addImage(image);
+        modal.addSuccess();
+    }
+
+    const handleFile = async file => {
+        const extension = file.name.split('.').pop().toLowerCase();
+        try {
+            switch (extension) {
+                case 'gpx':
+                    return await handleGPX(file);
+                case 'jpg':
+                case 'jpeg':
+                    return await handleImage(file);
+                default:
+                    throw 'Unsupported file format';
+            }
+        } catch (err) {
+            console.log(err);
+            modal.addFailure({name: file.name, error: err});
+        }
+    }
+
+
+    Promise.all(files.map(handleFile)).then(() => {
         map.center();
 
         modal.finished();
@@ -149,11 +137,10 @@ function handleDragOver(evt) {
 function buildUploadModal(numFiles) {
     let numLoaded = 0;
     let failures = [];
+    let failureString = failures.length ? `, <span class='failures'>${failures.length} failed</span>` : ``;
     let getModalContent = () => `
         <h1>Reading files...</h1>
-        <p>${numLoaded} loaded${
-            failures.length ? `, <span class='failures'>${failures.length} failed</span>` : ``
-        } of <b>${numFiles}</b></p>`;
+        <p>${numLoaded} loaded${failureString} of <b>${numFiles}</b></p>`;
 
     let modal = picoModal({
         content: getModalContent(),

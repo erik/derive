@@ -183,30 +183,32 @@ export default class GpxMap {
         this.tracks.push(line);
     }
 
-    markerClick(image) {
-        let latlng = leaflet.latLng(image.latitude, image.longitude);
+    async markerClick(image) {
+        const latitude = await image.latitude();
+        const longitude = await image.longitude();
+        const width = await image.width();
+        const height = await image.height();
+        const imageData = await image.getImageData();
 
-        return new Promise(resolve => {
-            image.getImageData().then((imageData) => {
-                leaflet.popup(latlng)
-                    .setLatLng(latlng)
-                    .setContent(`<img src="${imageData}" width="${image.width}" height="${image.height}">`)
-                    .addTo(this.map);
-                resolve();
-            });
-        });
+        let latlng = leaflet.latLng(latitude, longitude);
+
+        leaflet.popup()
+            .setLatLng(latlng)
+            .setContent(`<img src="${imageData}" width="${width}" height="${height}">`)
+            .addTo(this.map);
     }
 
-    addImage(image) {
-        let lat = image.latitude;
-        let lng = image.longitude;
+    async addImage(image) {
+        const self = this;
+        const lat = await image.latitude();
+        const lng = await image.longitude();
 
         let latlng = leaflet.latLng(lat, lng);
         let markerOptions = Object.assign({}, this.options.markerOptions);
 
         let marker = leaflet.circleMarker(latlng, markerOptions)
             .on('click', () => {
-                this.markerClick(image);
+                self.markerClick(image);
             })
             .addTo(this.map);
 

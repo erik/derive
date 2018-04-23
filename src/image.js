@@ -1,62 +1,62 @@
 import EXIF from 'exif-js';
 
 
-function degMinSecToDecimal(dms) {
-    return dms[0].numerator + dms[1].numerator /
+function degMinSecToDecimal(dms, isNegative) {
+    const absDecimal = dms[0].numerator + dms[1].numerator /
         (60 * dms[1].denominator) + dms[2].numerator / 
         (3600 * dms[2].denominator);
+    return absDecimal * (isNegative ? -1 : 1);
 }
 
 export default class Image {
     constructor(imageFile) {
         this.imageFile = imageFile;
-        this.imageData = null;
-        this.hasParsedExif = false;
     }
 
-    extractExifData() {
-        let self = this;
-        return new Promise(resolve => {
-            if (self.hasParsedExif) { resolve(self); }
-            EXIF.getData(this.imageFile, function() {
-                self.width = EXIF.getTag(this, 'PixelXDimension');
-                self.height = EXIF.getTag(this, 'PixelYDimension');
-
-                let lat = EXIF.getTag(this, 'GPSLatitude');
-                let lng = EXIF.getTag(this, 'GPSLongitude');
-                let latRef = EXIF.getTag(this, 'GPSLatitudeRef');
-                let lngRef = EXIF.getTag(this, 'GPSLongitudeRef');
-
-                if (!lat || !lng || !latRef || !lngRef) { 
-                    console.log('Image has no geolocation data', this);
-                    return resolve(null); 
-                }
-
-                let latDecimal = degMinSecToDecimal(lat);
-                let lngDecimal = degMinSecToDecimal(lng);
-
-                let latMultiplier = latRef === 'N' ? 1 : -1;
-                let lngMultiplier = lngRef === 'E' ? 1 : -1;
-
-                self.latitude = latDecimal * latMultiplier;                
-                self.longitude = lngDecimal * lngMultiplier;
-
-                self.hasParsedExif = true;
-                resolve(self);
-            });
-        });
+    async hasGeolocationData() {
+        const latitude = await this.latitude();
+        const longitude = await this.longitude();
+        return latitude && longitude;
     }
 
-    getImageData() {
-        let self = this;
-        return new Promise(resolve => {
-            if (self.imageData != null) {
-                return resolve(self.imageData);
-            }
+    async width() {
+        await this.extractExifData();
+        return EXIF.getTag(this.imageFile, 'PixelXDimension');
+    }
 
+    async height() {
+        await this.extractExifData();
+        return EXIF.getTag(this.imageFile, 'PixelYDimension');
+    }
+
+    async latitude() {
+        await this.extractExifData();
+        const latitude = EXIF.getTag(this.imageFile, 'GPSLatitude');
+        const latRef = EXIF.getTag(this.imageFile, 'GPSLatitudeRef');
+
+        if (!latitude || !latRef) throw 'No latitude data';
+
+        return degMinSecToDecimal(latitude, latRef === 'S');
+    }
+
+    async longitude() {
+        await this.extractExifData();
+        const longitude = EXIF.getTag(this.imageFile, 'GPSLongitude');
+        const lngRef = EXIF.getTag(this.imageFile, 'GPSLongitudeRef');
+
+        if (!longitude || !lngRef) throw 'No longitude data';
+
+        return degMinSecToDecimal(longitude, lngRef === 'W');
+    }
+
+    async extractExifData() {
+        await new Promise(resolve => EXIF.getData(this.imageFile, resolve)); 
+    }
+
+    async getImageData() {
+        return new Promise(resolve => {
             let reader = new FileReader();
             reader.onload = () => {
-                self.imageData = reader.result;
                 return resolve(reader.result);
             };
             reader.readAsDataURL(this.imageFile, 'UTF-8');                    
