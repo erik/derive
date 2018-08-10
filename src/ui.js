@@ -1,7 +1,8 @@
 import 'babel-polyfill';
 import picoModal from 'picomodal';
-import parseGPX from './gpx';
+import parseTrack from './track';
 import Image from './image';
+import Pako from 'pako';
 
 const AVAILABLE_THEMES = [
     'CartoDB.DarkMatter',
@@ -66,6 +67,23 @@ the attractions of the terrain and the encounters they find there.
 `
 };
 
+function readFile(file) {
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsText(file, 'UTF-8');
+    });
+}
+
+function readGz(file) {
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            resolve(Pako.inflate(e.target.result, { to: 'string' }));
+        }
+        reader.readAsArrayBuffer(file);
+    });
+}
 
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
 function handleFileSelect(map, evt) {
@@ -78,20 +96,6 @@ function handleFileSelect(map, evt) {
 
     modal.show();
 
-    const handleGPX = async file => {
-        const fileContents = await new Promise(resolve => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.readAsText(file, 'UTF-8');
-        });
-        for (const track of await parseGPX(fileContents)) {
-            track.filename = file.name;
-            tracks.push(track);
-            map.addTrack(track);
-            modal.addSuccess();
-        }
-    };
-
     const handleImage = async file => {
         const image = new Image(file);
         const hasGeolocationData = await image.hasGeolocationData();
@@ -100,20 +104,29 @@ function handleFileSelect(map, evt) {
         modal.addSuccess();
     };
 
+    const handleTrack = async (file, name) => {
+        for (const track of await parseTrack(file, name)) {
+            track.filename = name;
+            tracks.push(track);
+            map.addTrack(track);
+            modal.addSuccess();
+        }
+    };
+
     const handleFile = async file => {
-        const extension = file.name.split('.').pop().toLowerCase();
+        let name = file.name;
         try {
-            switch (extension) {
-                case 'gpx':
-                    return await handleGPX(file);
-                case 'jpg':
-                case 'jpeg':
-                    return await handleImage(file);
-                default:
-                    throw 'Unsupported file format';
+            if (/\.jpe?g$/i.test(name)) {
+                return await handleImage(file);
             }
+            const contents = /\.gz$/i.test(name) ? await readGz(file) : await readFile(file);
+            name = name.replace(/\.gz$/i, '');
+            if (/\.(gpx|tcx)$/i.test(name)) {
+                return await handleTrack(contents, file.name);
+            }
+            throw 'Unsupported file format';
         } catch (err) {
-            console.log(err);
+            console.error(err);
             modal.addFailure({name: file.name, error: err});
         }
     };
