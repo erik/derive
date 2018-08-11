@@ -27,8 +27,11 @@ file of all the GPS tracks you've logged so far: this can take several hours.
 $ npm install
 
 # Develop locally
-$ npm serve
+$ npm run serve
+
+# Lint code
+$ npm run lint
 
 # Build bundle for deployment
-$ webpack -p
+$ npm run build
 ```

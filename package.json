@@ -7,7 +7,9 @@
     "type": "git"
   },
   "scripts": {
-    "serve": "webpack-serve"
+    "serve": "webpack-serve",
+    "lint": "eslint src/*",
+    "build": "webpack -p"
   },
   "author": "Erik Price <github@erikprice.net>",
   "license": "MIT",
