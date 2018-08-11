@@ -24,10 +24,11 @@ const AVAILABLE_THEMES = [
 const MODAL_CONTENT = {
     help: `
 <h1>dérive</h1>
-<h4>Drag and drop one or more GPX or JPG files here</h4>
-<p>If you use Strava, you can obtain a ZIP file of your activity data
-in GPX format on your <a href="https://www.strava.com/settings/profile">profile
-page</a> and clicking "Download all your activities."
+<h4>Drag and drop one or more GPX/TCX files or JPEG images here.</h4>
+<p>If you use Strava, go to your
+<a href="https://www.strava.com/athlete/delete_your_account">account download
+page</a> and click "Request your archive". You'll get an email containing a ZIP
+file of all the GPS tracks you've logged so far: this can take several hours.
 </p>
 
 <p>All processing happens in your browser. Your files will not be uploaded or
@@ -38,9 +39,9 @@ In a dérive one or more persons during a certain period drop their
 relations, their work and leisure activities, and all their other
 usual motives for movement and action, and let themselves be drawn by
 the attractions of the terrain and the encounters they find there.
-
+</em>
 <a href="http://library.nothingness.org/articles/SI/en/display/314"><sup>1</sup></a>
-</em></p>
+</p>
 
 <p>Code is available <a href="https://github.com/erik/derive">on GitHub</a>.</p>
 `,
