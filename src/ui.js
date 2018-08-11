@@ -34,14 +34,13 @@ file of all the GPS tracks you've logged so far: this can take several hours.
 <p>All processing happens in your browser. Your files will not be uploaded or
 stored anywhere.</p>
 
-<p><em>
+<blockquote>
 In a dérive one or more persons during a certain period drop their
 relations, their work and leisure activities, and all their other
 usual motives for movement and action, and let themselves be drawn by
-the attractions of the terrain and the encounters they find there.
-</em>
-<a href="http://library.nothingness.org/articles/SI/en/display/314"><sup>1</sup></a>
-</p>
+the attractions of the terrain and the encounters they find there.<cite><a
+href="http://library.nothingness.org/articles/SI/en/display/314">[1]</a></cite>
+</blockquote>
 
 <p>Code is available <a href="https://github.com/erik/derive">on GitHub</a>.</p>
 `,
