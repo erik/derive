@@ -1,4 +1,4 @@
-* {
+:root {
     font-family: Avenir, Helvetica Neue, Segoe UI, Helvetica, arial, sans-serif;
 }
 
@@ -17,6 +17,21 @@ a {
     bottom: 0;
     left: 0;
     z-index: -1;
+}
+
+blockquote {
+    margin: 1em 0;
+    font-style: italic;
+}
+
+blockquote cite {
+    font-style: normal;
+    vertical-align: super;
+    font-size: smaller;
+}
+
+blockquote cite a:not(:hover) {
+    text-decoration: none;
 }
 
 form {

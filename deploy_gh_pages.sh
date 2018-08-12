@@ -8,9 +8,7 @@ git pull origin gh-pages
 
 git merge origin/master --commit --stat
 
-webpack -p
-
-cp dist/bundle.js bundle.js
+npm run build
 
 git add bundle.js
 git commit
