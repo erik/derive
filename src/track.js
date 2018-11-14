@@ -43,20 +43,21 @@ function extractTCXTracks(tcx, name) {
 
     const parsedTracks = [];
 
-    tcx.Activities[0].Activity.forEach(act => {
-        act.Lap.forEach(lap => {
+    for (const act of tcx.Activities[0].Activity) {
+        for (const lap of act.Lap) {
             let points = lap.Track[0].Trackpoint
-                    .filter(trkpt => trkpt.Position)
-                    .map(trkpt => ({
-                        lat: parseFloat(trkpt.Position[0].LatitudeDegrees[0]),
-                        lng: parseFloat(trkpt.Position[0].LongitudeDegrees[0]),
-                        // These are available to us, but are currently unused
-                        // elev: parseFloat(trkpt.ElevationMeters[0]) || 0,
-                        // time: new Date(trkpt.Time[0] || '0')
-                    }));
+                .filter(trkpt => trkpt.Position)
+                .map(trkpt => ({
+                    lat: parseFloat(trkpt.Position[0].LatitudeDegrees[0]),
+                    lng: parseFloat(trkpt.Position[0].LongitudeDegrees[0]),
+                    // These are available to us, but are currently unused
+                    // elev: parseFloat(trkpt.ElevationMeters[0]) || 0,
+                    // time: new Date(trkpt.Time[0] || '0')
+                }));
+
             parsedTracks.push({points, name});
-        });
-    });
+        }
+    }
 
     return parsedTracks;
 }
