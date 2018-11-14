@@ -256,7 +256,7 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
     </span>
 
     <fieldset class="form-group">
-        <legend>GPX Options</legend>
+        <legend>GPS Track Options</legend>
 
         <div class="row">
             <label>Color</label>
