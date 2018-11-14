@@ -69,11 +69,13 @@ function extractFITTracks(fit, name) {
 
     const points = [];
     for (const record of fit.records) {
-        points.push({
-            lat: record.position_lat,
-            lng: record.position_long,
-            // Other available fields: timestamp, distance, altitude, speed, heart_rate
-        });
+        if (record.position_lat && record.position_long) {
+            points.push({
+                lat: record.position_lat,
+                lng: record.position_long,
+                // Other available fields: timestamp, distance, altitude, speed, heart_rate
+            });
+        }
     }
 
 
