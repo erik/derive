@@ -1,6 +1,6 @@
 import 'babel-polyfill';
 import picoModal from 'picomodal';
-import parseTrack from './track';
+import extractTracks from './track';
 import Image from './image';
 import Pako from 'pako';
 
@@ -71,7 +71,7 @@ function readFile(file) {
     return new Promise(resolve => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
-        reader.readAsText(file, 'UTF-8');
+        reader.readAsArrayBuffer(file);
     });
 }
 
@@ -79,8 +79,8 @@ function readGz(file) {
     return new Promise(resolve => {
         const reader = new FileReader();
         reader.onload = e => {
-            resolve(Pako.inflate(e.target.result, { to: 'string' }));
-        }
+            resolve(Pako.inflate(e.target.result));
+        };
         reader.readAsArrayBuffer(file);
     });
 }
@@ -104,8 +104,9 @@ function handleFileSelect(map, evt) {
         modal.addSuccess();
     };
 
-    const handleTrack = async (file, name) => {
-        for (const track of await parseTrack(file, name)) {
+    const handleTrackFile = async (fileContents, name) => {
+        const ext = name.split('.').pop().toLowerCase();
+        for (const track of await extractTracks(ext, fileContents, name)) {
             track.filename = name;
             tracks.push(track);
             map.addTrack(track);
@@ -119,12 +120,11 @@ function handleFileSelect(map, evt) {
             if (/\.jpe?g$/i.test(name)) {
                 return await handleImage(file);
             }
-            const contents = /\.gz$/i.test(name) ? await readGz(file) : await readFile(file);
+
+            const contents = await (/\.gz$/i.test(name) ? readGz(file) : readFile(file));
+
             name = name.replace(/\.gz$/i, '');
-            if (/\.(gpx|tcx)$/i.test(name)) {
-                return await handleTrack(contents, file.name);
-            }
-            throw 'Unsupported file format';
+            return await handleTrackFile(contents, name);
         } catch (err) {
             console.error(err);
             modal.addFailure({name: file.name, error: err});

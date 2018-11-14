@@ -3,6 +3,7 @@
 // https://github.com/taterbase/gpx-parser
 
 import xml2js from 'xml2js';
+import EasyFit from 'easy-fit';
 
 
 const parser = new xml2js.Parser();
@@ -60,19 +61,65 @@ function extractTCXTracks(tcx, name) {
     return parsedTracks;
 }
 
+function extractFITTracks(fit, name) {
+    if (!fit.records || fit.records.length === 0) {
+        console.log('FIT file has no records!', fit);
+        throw new Error('Unexpected FIT file format.');
+    }
 
-export default function parseTrack(gpxString, name) {
-    return new Promise((resolve, reject) => {
-        parser.parseString(gpxString, (err, result) => {
-            if (err) {
-                reject(err);
-            } else if (result.gpx) {
-                resolve(extractGPXTracks(result.gpx));
-            } else if (result.TrainingCenterDatabase) {
-                resolve(extractTCXTracks(result.TrainingCenterDatabase, name));
-            } else {
-                reject(new Error('Invalid file type.'));
-            }
+    const points = [];
+    for (const record of fit.records) {
+        points.push({
+            lat: record.position_lat,
+            lng: record.position_long,
+            // Other available fields: timestamp, distance, altitude, speed, heart_rate
         });
-    });
+    }
+
+
+    return [{points, name}];
+}
+
+
+export default function extractTracks(format, fileBuf, name) {
+    switch (format) {
+    case 'gpx':
+    case 'tcx': /* Handle XML based file formats the same way */
+        // TODO: TextDecoder likely needs a polyfill, can we get away without it?
+        const textContents = new TextDecoder('utf-8').decode(new Uint8Array(fileBuf));
+
+        return new Promise((resolve, reject) => {
+            parser.parseString(textContents, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else if (result.gpx) {
+                    resolve(extractGPXTracks(result.gpx));
+                } else if (result.TrainingCenterDatabase) {
+                    resolve(extractTCXTracks(result.TrainingCenterDatabase, name));
+                } else {
+                    reject(new Error('Invalid file type.'));
+                }
+            });
+        });
+
+    case 'fit':
+        return new Promise((resolve, reject) => {
+            const parser = new EasyFit({
+                force: true,
+                mode: 'list',
+            });
+
+            // Parse your file
+            parser.parse(fileBuf, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(extractFITTracks(result, name));
+                }
+            });
+        });
+
+    default:
+        throw `Unsupported file format: ${format}`;
+    }
 }
