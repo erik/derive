@@ -133,7 +133,6 @@ export default function extractTracks(file) {
                     mode: 'list',
                 });
 
-                // Parse your file
                 parser.parse(contents, (err, result) => {
                     if (err) {
                         reject(err);
