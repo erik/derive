@@ -1,8 +1,7 @@
 import 'babel-polyfill';
 import picoModal from 'picomodal';
-import parseTrack from './track';
+import extractTracks from './track';
 import Image from './image';
-import Pako from 'pako';
 
 const AVAILABLE_THEMES = [
     'CartoDB.DarkMatter',
@@ -24,7 +23,7 @@ const AVAILABLE_THEMES = [
 const MODAL_CONTENT = {
     help: `
 <h1>dérive</h1>
-<h4>Drag and drop one or more GPX/TCX files or JPEG images here.</h4>
+<h4>Drag and drop one or more GPX/TCX/FIT files or JPEG images here.</h4>
 <p>If you use Strava, go to your
 <a href="https://www.strava.com/athlete/delete_your_account">account download
 page</a> and click "Request your archive". You'll get an email containing a ZIP
@@ -67,24 +66,6 @@ href="http://library.nothingness.org/articles/SI/en/display/314">[1]</a></cite>
 `
 };
 
-function readFile(file) {
-    return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsText(file, 'UTF-8');
-    });
-}
-
-function readGz(file) {
-    return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = e => {
-            resolve(Pako.inflate(e.target.result, { to: 'string' }));
-        }
-        reader.readAsArrayBuffer(file);
-    });
-}
-
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
 function handleFileSelect(map, evt) {
     evt.stopPropagation();
@@ -104,9 +85,9 @@ function handleFileSelect(map, evt) {
         modal.addSuccess();
     };
 
-    const handleTrack = async (file, name) => {
-        for (const track of await parseTrack(file, name)) {
-            track.filename = name;
+    const handleTrackFile = async (file) => {
+        for (const track of await extractTracks(file)) {
+            track.filename = file.name;
             tracks.push(track);
             map.addTrack(track);
             modal.addSuccess();
@@ -114,23 +95,17 @@ function handleFileSelect(map, evt) {
     };
 
     const handleFile = async file => {
-        let name = file.name;
         try {
-            if (/\.jpe?g$/i.test(name)) {
+            if (/\.jpe?g$/i.test(file.name)) {
                 return await handleImage(file);
             }
-            const contents = /\.gz$/i.test(name) ? await readGz(file) : await readFile(file);
-            name = name.replace(/\.gz$/i, '');
-            if (/\.(gpx|tcx)$/i.test(name)) {
-                return await handleTrack(contents, file.name);
-            }
-            throw 'Unsupported file format';
+
+            return await handleTrackFile(file);
         } catch (err) {
             console.error(err);
             modal.addFailure({name: file.name, error: err});
         }
     };
-
 
     Promise.all(files.map(handleFile)).then(() => {
         map.center();
@@ -256,7 +231,7 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
     </span>
 
     <fieldset class="form-group">
-        <legend>GPX Options</legend>
+        <legend>GPS Track Options</legend>
 
         <div class="row">
             <label>Color</label>
