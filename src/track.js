@@ -4,6 +4,7 @@
 
 import xml2js from 'xml2js';
 import EasyFit from 'easy-fit';
+import Pako from 'pako';
 
 
 const parser = new xml2js.Parser();
@@ -84,43 +85,63 @@ function extractFITTracks(fit, name) {
 }
 
 
-export default function extractTracks(format, fileBuf, name) {
+function readFile(file, encoding, isGzipped) {
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const result = e.target.result;
+            resolve(isGzipped ? Pako.inflate(result) : result);
+        };
+
+        if (encoding ===  'binary') {
+            reader.readAsArrayBuffer(file);
+        } else {
+            reader.readAsText(file);
+        }
+    });
+}
+
+export default async function extractTracks(file) {
+    const isGzipped = /\.gz$/i.test(file.name);
+    const strippedName = file.name.replace(/\.gz$/i, '');
+    const format = strippedName.split('.').pop().toLowerCase();
+
     switch (format) {
     case 'gpx':
     case 'tcx': /* Handle XML based file formats the same way */
-        // TODO: TextDecoder likely needs a polyfill, can we get away without it?
-        const textContents = new TextDecoder('utf-8').decode(new Uint8Array(fileBuf));
 
-        return new Promise((resolve, reject) => {
-            parser.parseString(textContents, (err, result) => {
-                if (err) {
-                    reject(err);
-                } else if (result.gpx) {
-                    resolve(extractGPXTracks(result.gpx));
-                } else if (result.TrainingCenterDatabase) {
-                    resolve(extractTCXTracks(result.TrainingCenterDatabase, name));
-                } else {
-                    reject(new Error('Invalid file type.'));
-                }
-            });
-        });
+        return readFile(file, 'text', isGzipped)
+            .then(textContents => new Promise((resolve, reject) => {
+                parser.parseString(textContents, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else if (result.gpx) {
+                        resolve(extractGPXTracks(result.gpx));
+                    } else if (result.TrainingCenterDatabase) {
+                        resolve(extractTCXTracks(result.TrainingCenterDatabase, strippedName));
+                    } else {
+                        reject(new Error('Invalid file type.'));
+                    }
+                });
+            }));
 
     case 'fit':
-        return new Promise((resolve, reject) => {
-            const parser = new EasyFit({
-                force: true,
-                mode: 'list',
-            });
+        return readFile(file, 'binary', isGzipped)
+            .then(contents => new Promise((resolve, reject) => {
+                const parser = new EasyFit({
+                    force: true,
+                    mode: 'list',
+                });
 
-            // Parse your file
-            parser.parse(fileBuf, (err, result) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(extractFITTracks(result, name));
-                }
-            });
-        });
+                // Parse your file
+                parser.parse(contents, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(extractFITTracks(result, strippedName));
+                    }
+                });
+            }));
 
     default:
         throw `Unsupported file format: ${format}`;

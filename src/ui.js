@@ -2,7 +2,6 @@ import 'babel-polyfill';
 import picoModal from 'picomodal';
 import extractTracks from './track';
 import Image from './image';
-import Pako from 'pako';
 
 const AVAILABLE_THEMES = [
     'CartoDB.DarkMatter',
@@ -67,24 +66,6 @@ href="http://library.nothingness.org/articles/SI/en/display/314">[1]</a></cite>
 `
 };
 
-function readFile(file) {
-    return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsArrayBuffer(file);
-    });
-}
-
-function readGz(file) {
-    return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = e => {
-            resolve(Pako.inflate(e.target.result));
-        };
-        reader.readAsArrayBuffer(file);
-    });
-}
-
 // Adapted from: http://www.html5rocks.com/en/tutorials/file/dndfiles/
 function handleFileSelect(map, evt) {
     evt.stopPropagation();
@@ -104,10 +85,9 @@ function handleFileSelect(map, evt) {
         modal.addSuccess();
     };
 
-    const handleTrackFile = async (fileContents, name) => {
-        const ext = name.split('.').pop().toLowerCase();
-        for (const track of await extractTracks(ext, fileContents, name)) {
-            track.filename = name;
+    const handleTrackFile = async (file) => {
+        for (const track of await extractTracks(file)) {
+            track.filename = file.name;
             tracks.push(track);
             map.addTrack(track);
             modal.addSuccess();
@@ -115,22 +95,17 @@ function handleFileSelect(map, evt) {
     };
 
     const handleFile = async file => {
-        let name = file.name;
         try {
-            if (/\.jpe?g$/i.test(name)) {
+            if (/\.jpe?g$/i.test(file.name)) {
                 return await handleImage(file);
             }
 
-            const contents = await (/\.gz$/i.test(name) ? readGz(file) : readFile(file));
-
-            name = name.replace(/\.gz$/i, '');
-            return await handleTrackFile(contents, name);
+            return await handleTrackFile(file);
         } catch (err) {
             console.error(err);
             modal.addFailure({name: file.name, error: err});
         }
     };
-
 
     Promise.all(files.map(handleFile)).then(() => {
         map.center();
