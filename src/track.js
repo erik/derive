@@ -93,7 +93,7 @@ function readFile(file, encoding, isGzipped) {
             resolve(isGzipped ? Pako.inflate(result) : result);
         };
 
-        if (encoding ===  'binary') {
+        if (encoding === 'binary') {
             reader.readAsArrayBuffer(file);
         } else {
             reader.readAsText(file);
