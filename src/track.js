@@ -101,7 +101,7 @@ function readFile(file, encoding, isGzipped) {
     });
 }
 
-export default async function extractTracks(file) {
+export default function extractTracks(file) {
     const isGzipped = /\.gz$/i.test(file.name);
     const strippedName = file.name.replace(/\.gz$/i, '');
     const format = strippedName.split('.').pop().toLowerCase();
