@@ -3,6 +3,8 @@
 // https://github.com/taterbase/gpx-parser
 
 import xml2js from 'xml2js';
+import EasyFit from 'easy-fit';
+import Pako from 'pako';
 
 
 const parser = new xml2js.Parser();
@@ -42,37 +44,105 @@ function extractTCXTracks(tcx, name) {
 
     const parsedTracks = [];
 
-    tcx.Activities[0].Activity.forEach(act => {
-        act.Lap.forEach(lap => {
+    for (const act of tcx.Activities[0].Activity) {
+        for (const lap of act.Lap) {
             let points = lap.Track[0].Trackpoint
-                    .filter(trkpt => trkpt.Position)
-                    .map(trkpt => ({
-                        lat: parseFloat(trkpt.Position[0].LatitudeDegrees[0]),
-                        lng: parseFloat(trkpt.Position[0].LongitudeDegrees[0]),
-                        // These are available to us, but are currently unused
-                        // elev: parseFloat(trkpt.ElevationMeters[0]) || 0,
-                        // time: new Date(trkpt.Time[0] || '0')
-                    }));
+                .filter(trkpt => trkpt.Position)
+                .map(trkpt => ({
+                    lat: parseFloat(trkpt.Position[0].LatitudeDegrees[0]),
+                    lng: parseFloat(trkpt.Position[0].LongitudeDegrees[0]),
+                    // These are available to us, but are currently unused
+                    // elev: parseFloat(trkpt.ElevationMeters[0]) || 0,
+                    // time: new Date(trkpt.Time[0] || '0')
+                }));
+
             parsedTracks.push({points, name});
-        });
-    });
+        }
+    }
 
     return parsedTracks;
 }
 
+function extractFITTracks(fit, name) {
+    if (!fit.records || fit.records.length === 0) {
+        console.log('FIT file has no records!', fit);
+        throw new Error('Unexpected FIT file format.');
+    }
 
-export default function parseTrack(gpxString, name) {
-    return new Promise((resolve, reject) => {
-        parser.parseString(gpxString, (err, result) => {
-            if (err) {
-                reject(err);
-            } else if (result.gpx) {
-                resolve(extractGPXTracks(result.gpx));
-            } else if (result.TrainingCenterDatabase) {
-                resolve(extractTCXTracks(result.TrainingCenterDatabase, name));
-            } else {
-                reject(new Error('Invalid file type.'));
-            }
-        });
+    const points = [];
+    for (const record of fit.records) {
+        if (record.position_lat && record.position_long) {
+            points.push({
+                lat: record.position_lat,
+                lng: record.position_long,
+                // Other available fields: timestamp, distance, altitude, speed, heart_rate
+            });
+        }
+    }
+
+
+    return [{points, name}];
+}
+
+
+function readFile(file, encoding, isGzipped) {
+    return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const result = e.target.result;
+            resolve(isGzipped ? Pako.inflate(result) : result);
+        };
+
+        if (encoding === 'binary') {
+            reader.readAsArrayBuffer(file);
+        } else {
+            reader.readAsText(file);
+        }
     });
+}
+
+export default function extractTracks(file) {
+    const isGzipped = /\.gz$/i.test(file.name);
+    const strippedName = file.name.replace(/\.gz$/i, '');
+    const format = strippedName.split('.').pop().toLowerCase();
+
+    switch (format) {
+    case 'gpx':
+    case 'tcx': /* Handle XML based file formats the same way */
+
+        return readFile(file, 'text', isGzipped)
+            .then(textContents => new Promise((resolve, reject) => {
+                parser.parseString(textContents, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else if (result.gpx) {
+                        resolve(extractGPXTracks(result.gpx));
+                    } else if (result.TrainingCenterDatabase) {
+                        resolve(extractTCXTracks(result.TrainingCenterDatabase, strippedName));
+                    } else {
+                        reject(new Error('Invalid file type.'));
+                    }
+                });
+            }));
+
+    case 'fit':
+        return readFile(file, 'binary', isGzipped)
+            .then(contents => new Promise((resolve, reject) => {
+                const parser = new EasyFit({
+                    force: true,
+                    mode: 'list',
+                });
+
+                parser.parse(contents, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(extractFITTracks(result, strippedName));
+                    }
+                });
+            }));
+
+    default:
+        throw `Unsupported file format: ${format}`;
+    }
 }
