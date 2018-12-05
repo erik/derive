@@ -86,11 +86,15 @@ function extractFITTracks(fit, name) {
 
 
 function readFile(file, encoding, isGzipped) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const result = e.target.result;
-            resolve(isGzipped ? Pako.inflate(result) : result);
+            try {
+                return resolve(isGzipped ? Pako.inflate(result) : result);
+            } catch (e) {
+                return reject(e);
+            }
         };
 
         if (encoding === 'binary') {
