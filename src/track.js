@@ -1,6 +1,9 @@
 // This file is adapted from taterbase/gpx-parser
 //
 // https://github.com/taterbase/gpx-parser
+//
+// See https://www.topografix.com/gpx/1/1 for details on the schema for
+// GPX files.
 
 import xml2js from 'xml2js';
 import EasyFit from 'easy-fit';
@@ -10,14 +13,14 @@ import Pako from 'pako';
 const parser = new xml2js.Parser();
 
 function extractGPXTracks(gpx) {
-    if (!gpx.trk) {
-        console.log('GPX file has no tracks!', gpx);
+    if (!gpx.trk && !gpx.rte) {
+        console.log('GPX file has neither tracks nor routes!', gpx);
         throw new Error('Unexpected gpx file format.');
     }
 
     const parsedTracks = [];
 
-    gpx.trk.forEach(trk => {
+    gpx.trk && gpx.trk.forEach(trk => {
         let name = trk.name && trk.name.length > 0 ? trk.name[0] : 'untitled';
 
         trk.trkseg.forEach(trkseg => {
@@ -31,6 +34,17 @@ function extractGPXTracks(gpx) {
 
             parsedTracks.push({points, name});
         });
+    });
+
+    gpx.rte && gpx.rte.forEach(rte => {
+        let name = rte.name && rte.name.length > 0 ? rte.name[0] : 'untitled';
+
+        let points = rte.rtept.map(pt => ({
+            lat: parseFloat(pt.$.lat),
+            lng: parseFloat(pt.$.lon),
+        }));
+
+        parsedTracks.push({points, name});
     });
 
     return parsedTracks;
