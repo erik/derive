@@ -22,7 +22,7 @@ file of all the GPS tracks you've logged so far: this can take several hours.
 
 ## Developing
 
-```
+```bash
 # Install dependencies
 $ npm install
 
