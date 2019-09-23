@@ -24,13 +24,21 @@ function extractGPXTracks(gpx) {
         let name = trk.name && trk.name.length > 0 ? trk.name[0] : 'untitled';
 
         trk.trkseg.forEach(trkseg => {
-            let points = trkseg.trkpt.map(trkpt => ({
-                lat: parseFloat(trkpt.$.lat),
-                lng: parseFloat(trkpt.$.lon),
-                // These are available to us, but are currently unused
-                // elev: parseFloat(trkpt.ele) || 0,
-                // time: new Date(trkpt.time || '0')
-            }));
+            let points = trkseg.trkpt.reduce(function(result, trkpt) {
+                if (typeof trkpt.$ !== 'undefined'
+                  && typeof trkpt.$.lat !== 'undefined'
+                  && typeof trkpt.$.lon !== 'undefined'
+                ) {
+                    result.push({
+                        lat: parseFloat(trkpt.$.lat),
+                        lng: parseFloat(trkpt.$.lon),
+                        // These are available to us, but are currently unused
+                        // elev: parseFloat(trkpt.ele) || 0,
+                        // time: new Date(trkpt.time || '0')
+                    });
+                }
+                return result;
+            }, []);
 
             parsedTracks.push({points, name});
         });
