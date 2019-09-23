@@ -25,7 +25,10 @@ function extractGPXTracks(gpx) {
 
         trk.trkseg.forEach(trkseg => {
             let points = trkseg.trkpt.reduce(function(result, trkpt) {
-                if (typeof trkpt.$ !== 'undefined') {
+                if (typeof trkpt.$ !== 'undefined'
+                  && typeof trkpt.$.lat !== 'undefined'
+                  && typeof trkpt.$.lon !== 'undefined'
+                ) {
                     result.push({
                         lat: parseFloat(trkpt.$.lat),
                         lng: parseFloat(trkpt.$.lon),
