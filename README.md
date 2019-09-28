@@ -25,7 +25,7 @@ file of all the GPS tracks you've logged so far: this can take several hours.
 If you use Runtastic(ADIDAS), go to your export page(which in settings) 
 and click the "Export" button after a few minutes. You'll get an email 
 that notifies you that the export is complete. And go back to the export page,
-click the "Download" button that you can get a ZIP file off all your tracks. 
+click the "Download" button that you can get a ZIP file of all your tracks. 
 Then you can use [runtastic-gpx](https://github.com/glennreyes/runtastic-gpx) 
 to convert Runtastic exports to gpx.
 
