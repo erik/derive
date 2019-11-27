@@ -22,13 +22,13 @@ function extractGPXTracks(gpx) {
 
     gpx.trk && gpx.trk.forEach(trk => {
         let name = trk.name && trk.name.length > 0 ? trk.name[0] : 'untitled';
-        let time;
+        let timestamp;
 
         trk.trkseg.forEach(trkseg => {
             let points = [];
             for (let trkpt of trkseg.trkpt) {
                 if (trkpt.time && typeof trkpt.time[0] === 'string') {
-                    time = new Date(trkpt.time[0]);
+                    timestamp = new Date(trkpt.time[0]);
                 }
                 if (typeof trkpt.$ !== 'undefined' &&
                     typeof trkpt.$.lat !== 'undefined' &&
@@ -42,17 +42,17 @@ function extractGPXTracks(gpx) {
                 }
             }
 
-            parsedTracks.push({time, points, name});
+            parsedTracks.push({timestamp, points, name});
         });
     });
 
     gpx.rte && gpx.rte.forEach(rte => {
         let name = rte.name && rte.name.length > 0 ? rte.name[0] : 'untitled';
-        let time;
+        let timestamp;
         let points = [];
         for (let pt of rte.rtept) {
             if (pt.time && typeof pt.time[0] === 'string') {
-                time = new Date(pt.time[0]);
+                timestamp = new Date(pt.time[0]);
             }
             points.push({
                 lat: parseFloat(pt.$.lat),
@@ -60,7 +60,7 @@ function extractGPXTracks(gpx) {
             });
         }
 
-        parsedTracks.push({time, points, name});
+        parsedTracks.push({timestamp, points, name});
     });
 
     return parsedTracks;
@@ -76,12 +76,12 @@ function extractTCXTracks(tcx, name) {
     for (const act of tcx.Activities[0].Activity) {
         for (const lap of act.Lap) {
             let trackPoints = lap.Track[0].Trackpoint.filter(it => it.Position);
-            let time;
+            let timestamp;
             let points = []
 
             for (let trkpt of trackPoints) {
                 if (trkpt.Time && typeof trkpt.Time[0] === 'string') {
-                    time = new Date(trkpt.Time[0]);
+                    timestamp = new Date(trkpt.Time[0]);
                 }
                 points.push({
                     lat: parseFloat(trkpt.Position[0].LatitudeDegrees[0]),
@@ -91,7 +91,7 @@ function extractTCXTracks(tcx, name) {
                 });
             }
 
-            parsedTracks.push({time, points, name});
+            parsedTracks.push({timestamp, points, name});
         }
     }
 
@@ -104,7 +104,7 @@ function extractFITTracks(fit, name) {
         throw new Error('Unexpected FIT file format.');
     }
 
-    let time;
+    let timestamp;
     const points = [];
     for (const record of fit.records) {
         if (record.position_lat && record.position_long) {
@@ -114,10 +114,10 @@ function extractFITTracks(fit, name) {
                 // Other available fields: timestamp, distance, altitude, speed, heart_rate
             });
         }
-        record.timestamp && (time = record.timestamp);
+        record.timestamp && (timestamp = record.timestamp);
     }
 
-    return [{time, points, name}];
+    return [{timestamp, points, name}];
 }
 
 

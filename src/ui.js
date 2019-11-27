@@ -327,14 +327,7 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
 }
 
 export function buildFilterModal(tracks, filters, finishCallback) {
-    let dateBounds = tracks
-        .map(it => it.time || new Date(0))
-        .reduce(({min, max}, date) => {
-            if (!min || date < min) { min = date };
-            if (!max || date > max) { max = date };
-            return {min, max};
-        }, {min: '', max: ''});
-
+    let maxDate = new Date().toISOString().split('T')[0];
     let modalContent = `
 <h3>Filter Displayed Tracks</h3>
 
@@ -343,16 +336,16 @@ export function buildFilterModal(tracks, filters, finishCallback) {
         <label for="minDate">Start date:</label>
         <input type="date" id="minDate" name="minDate"
             value="${filters.minDate || ''}"
-            min="${dateBounds.min}"
-            max="${dateBounds.max}">
+            min="1990-01-01"
+            max="${maxDate}">
     </span>
 
     <span class="form-row">
         <label for="maxDate">End date:</label>
         <input type="date" id="maxDate" name="maxDate"
             value="${filters.maxDate || ''}"
-            min="${dateBounds.min}"
-            max="${dateBounds.max}">
+            min="1990-01-01"
+            max="${maxDate}">
     </span>
 </form>`;
 
