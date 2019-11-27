@@ -120,7 +120,7 @@ export default class GpxMap {
         this.requestBrowserLocation();
     }
 
-    clearScroll () {
+    clearScroll() {
         this.scrolled = false;
         this.map.addEventListener('movestart', this.markScrolled);
     }
@@ -167,26 +167,29 @@ export default class GpxMap {
         this.options = opts;
     }
 
-    applyFilters () {
+    applyFilters() {
+        const dateBounds = {
+            min: new Date(this.filters.minDate || '1900/01/01'),
+            max: new Date(this.filters.maxDate || '2500/01/01'),
+        };
+
+        // NOTE: Tracks that don't have an associated timestamp will never be
+        // excluded.
+        const filters = [
+            (t) => t.timestamp && dateBounds.min > t.timestamp,
+            (t) => t.timestamp && dateBounds.max < t.timestamp,
+        ];
+
         for (let track of this.tracks) {
-            let show = true;
+            let hideTrack = filters.some(f => f(track));
 
-            // Timestamp based filtering
-            if (track.time) {
-                const {minDate, maxDate} = this.filters;
-                if (minDate && new Date(minDate) > track.time ||
-                    maxDate && new Date(maxDate) < track.time) {
-                    show = false;
-                }
-            }
-
-            if (!show && track.visible) {
-                track.visible = false;
+            if (hideTrack && track.visible) {
                 track.line.remove();
-            } else if (show && !track.visible){
+            } else if (!hideTrack && !track.visible){
                 track.line.addTo(this.map);
-                track.visible = true;
             }
+
+            track.visible = !hideTrack;
         }
     }
 
