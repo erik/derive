@@ -27,7 +27,7 @@ const MODAL_CONTENT = {
 <p>If you use Strava, go to your
 <a href="https://www.strava.com/athlete/delete_your_account">account download
 page</a> and click "Request your archive". You'll get an email containing a ZIP
-file of all the GPS tracks you've logged so far: this can take several hours.
+file of all the GPS tracks you've logged so far. This can take several hours.
 </p>
 
 <p>All processing happens in your browser. Your files will not be uploaded or
@@ -99,7 +99,6 @@ function handleFileSelect(map, evt) {
             if (/\.jpe?g$/i.test(file.name)) {
                 return await handleImage(file);
             }
-
             return await handleTrackFile(file);
         } catch (err) {
             console.error(err);
@@ -109,7 +108,6 @@ function handleFileSelect(map, evt) {
 
     Promise.all(files.map(handleFile)).then(() => {
         map.center();
-
         modal.finished();
     });
 }
@@ -201,21 +199,20 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
     let overrideExisting = opts.lineOptions.overrideExisting ? 'checked' : '';
 
     if (tracks.length > 0) {
-        let allSameColor = tracks.every(trk => {
-            return trk.options.color === tracks[0].options.color;
+        let allSameColor = tracks.every(({line}) => {
+            return line.options.color === tracks[0].line.options.color;
         });
 
         if (!allSameColor) {
             overrideExisting = false;
         } else {
-            opts.lineOptions.color = tracks[0].options.color;
+            opts.lineOptions.color = tracks[0].line.options.color;
         }
     }
 
     let detect = opts.lineOptions.detectColors ? 'checked' : '';
     let themes = AVAILABLE_THEMES.map(t => {
         let selected = (t === opts.theme) ? 'selected' : '';
-
         return `<option ${selected} value="${t}">${t}</option>`;
     });
 
@@ -329,6 +326,54 @@ export function buildSettingsModal(tracks, opts, finishCallback) {
     return modal;
 }
 
+export function buildFilterModal(tracks, filters, finishCallback) {
+    let maxDate = new Date().toISOString().split('T')[0];
+    let modalContent = `
+<h3>Filter Displayed Tracks</h3>
+
+<form id="settings">
+    <span class="form-row">
+        <label for="minDate">Start date:</label>
+        <input type="date" id="minDate" name="minDate"
+            value="${filters.minDate || ''}"
+            min="1990-01-01"
+            max="${maxDate}">
+    </span>
+
+    <span class="form-row">
+        <label for="maxDate">End date:</label>
+        <input type="date" id="maxDate" name="maxDate"
+            value="${filters.maxDate || ''}"
+            min="1990-01-01"
+            max="${maxDate}">
+    </span>
+</form>`;
+
+    let modal = picoModal({
+        content: modalContent,
+        closeButton: true,
+        escCloses: true,
+        overlayClose: true,
+        overlayStyles: (styles) => {
+            styles.opacity = 0.1;
+        },
+    });
+
+    modal.afterClose((modal) => {
+        let elements = document.getElementById('settings').elements;
+        let filters = Object.assign({}, filters);
+
+        for (let key of ['minDate', 'maxDate']) {
+            filters[key] = elements[key].value;
+        }
+
+        finishCallback(filters);
+        modal.destroy();
+    });
+
+    return modal;
+}
+
 export function showModal(type) {
     let modal = picoModal({
         content: MODAL_CONTENT[type],
@@ -338,7 +383,6 @@ export function showModal(type) {
     });
 
     modal.show();
-
     return modal;
 }
 

@@ -3,7 +3,7 @@ import leafletImage from 'leaflet-image';
 import 'leaflet-providers';
 import 'leaflet-easybutton';
 
-import {buildSettingsModal, showModal} from  './ui';
+import * as ui from './ui';
 
 
 // Los Angeles is the center of the universe
@@ -33,6 +33,10 @@ export default class GpxMap {
     constructor(options) {
         this.options = options || DEFAULT_OPTIONS;
         this.tracks = [];
+        this.filters = {
+            minDate: null,
+            maxDate: null,
+        };
         this.imageMarkers = [];
 
         this.map = leaflet.map('background-map', {
@@ -48,7 +52,7 @@ export default class GpxMap {
                 stateName: 'default',
                 title: 'Export as png',
                 onClick: () => {
-                    let modal = showModal('exportImage')
+                    let modal = ui.showModal('exportImage')
                         .afterClose(() => modal.destroy());
 
                     document.getElementById('render-export').onclick = (e) => {
@@ -71,11 +75,26 @@ export default class GpxMap {
                 stateName: 'default',
                 title: 'Open settings dialog',
                 onClick: () => {
-                    buildSettingsModal(this.tracks, this.options, (opts) => {
+                    ui.buildSettingsModal(this.tracks, this.options, (opts) => {
                         this.updateOptions(opts);
                     }).show();
                 },
             }],
+        }).addTo(this.map);
+
+        leaflet.easyButton({
+            type: 'animate',
+            states: [{
+                icon: 'fa-filter fa-lg',
+                stateName: 'default',
+                title: 'Filter displayed tracks',
+                onClick: () => {
+                    ui.buildFilterModal(this.tracks, this.filters, (f) => {
+                        this.filters = f;
+                        this.applyFilters();
+                    }).show();
+                }
+            }]
         }).addTo(this.map);
 
         this.viewAll = leaflet.easyButton({
@@ -101,7 +120,7 @@ export default class GpxMap {
         this.requestBrowserLocation();
     }
 
-    clearScroll () {
+    clearScroll() {
         this.scrolled = false;
         this.map.addEventListener('movestart', this.markScrolled);
     }
@@ -121,14 +140,14 @@ export default class GpxMap {
         }
 
         if (opts.lineOptions.overrideExisting) {
-            this.tracks.forEach(t => {
-                t.setStyle({
+            this.tracks.forEach(({line}) => {
+                line.setStyle({
                     color: opts.lineOptions.color,
                     weight: opts.lineOptions.weight,
                     opacity: opts.lineOptions.opacity,
                 });
 
-                t.redraw();
+                line.redraw();
             });
 
             let markerOptions = opts.markerOptions;
@@ -146,6 +165,32 @@ export default class GpxMap {
         }
 
         this.options = opts;
+    }
+
+    applyFilters() {
+        const dateBounds = {
+            min: new Date(this.filters.minDate || '1900/01/01'),
+            max: new Date(this.filters.maxDate || '2500/01/01'),
+        };
+
+        // NOTE: Tracks that don't have an associated timestamp will never be
+        // excluded.
+        const filters = [
+            (t) => t.timestamp && dateBounds.min > t.timestamp,
+            (t) => t.timestamp && dateBounds.max < t.timestamp,
+        ];
+
+        for (let track of this.tracks) {
+            let hideTrack = filters.some(f => f(track));
+
+            if (hideTrack && track.visible) {
+                track.line.remove();
+            } else if (!hideTrack && !track.visible){
+                track.line.addTo(this.map);
+            }
+
+            track.visible = !hideTrack;
+        }
     }
 
     // Try to pull geo location from browser and center the map
@@ -180,7 +225,7 @@ export default class GpxMap {
         let line = leaflet.polyline(track.points, lineOptions);
         line.addTo(this.map);
 
-        this.tracks.push(line);
+        this.tracks.push(Object.assign({line, visible: true}, track));
     }
 
     async markerClick(image) {
@@ -226,7 +271,8 @@ export default class GpxMap {
             return;
         }
 
-        let tracksAndImages = this.tracks.concat(this.imageMarkers);
+        let tracksAndImages = this.tracks.map(t => t.line)
+            .concat(this.imageMarkers);
 
         this.map.fitBounds((new leaflet.featureGroup(tracksAndImages)).getBounds(), {
             noMoveStart: true,

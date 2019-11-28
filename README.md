@@ -18,7 +18,7 @@ http://library.nothingness.org/articles/SI/en/display/314
 If you use Strava, go to your
 [account download page](https://www.strava.com/athlete/delete_your_account)
 and click "Request your archive". You'll get an email containing a ZIP
-file of all the GPS tracks you've logged so far: this can take several hours.
+file of all the GPS tracks you've logged so far. This can take several hours.
 
 ## Developing
 
