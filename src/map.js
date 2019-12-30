@@ -130,8 +130,10 @@ export default class GpxMap {
             this.mapTiles.removeFrom(this.map);
         }
 
-        this.mapTiles = leaflet.tileLayer.provider(themeName);
-        this.mapTiles.addTo(this.map, {detectRetina: true});
+        if (themeName !== 'No map') {
+            this.mapTiles = leaflet.tileLayer.provider(themeName);
+            this.mapTiles.addTo(this.map, {detectRetina: true});
+        }
     }
 
     updateOptions(opts) {
