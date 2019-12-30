@@ -18,6 +18,7 @@ const AVAILABLE_THEMES = [
     'Stamen.TonerLite',
     'Stamen.TonerBackground',
     'Stamen.Watercolor',
+    'No map',
 ];
 
 const MODAL_CONTENT = {
