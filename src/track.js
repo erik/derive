@@ -6,7 +6,7 @@
 // GPX files.
 
 import xml2js from 'xml2js';
-import EasyFit from 'easy-fit';
+import FitParser from 'fit-file-parser';
 import Pako from 'pako';
 
 
@@ -168,7 +168,7 @@ export default function extractTracks(file) {
     case 'fit':
         return readFile(file, 'binary', isGzipped)
             .then(contents => new Promise((resolve, reject) => {
-                const parser = new EasyFit({
+                const parser = new FitParser({
                     force: true,
                     mode: 'list',
                 });
