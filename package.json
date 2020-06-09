@@ -14,8 +14,8 @@
   "author": "Erik Price <github@erikprice.net>",
   "license": "MIT",
   "dependencies": {
-    "easy-fit": "0.0.8",
     "exif-js": "^2.3.0",
+    "fit-file-parser": "^1.6.18",
     "leaflet": "^1.3.3",
     "leaflet-easybutton": "^2.3.0",
     "leaflet-image": "^0.4.0",
