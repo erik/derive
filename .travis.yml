@@ -1,8 +1,0 @@
-language: node_js
-node_js:
-  - node
-install:
-  - npm install
-  - npm install -g eslint
-script:
-  - npm run lint
