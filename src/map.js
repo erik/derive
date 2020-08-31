@@ -77,6 +77,7 @@ export default class GpxMap {
                 onClick: () => {
                     ui.buildSettingsModal(this.tracks, this.options, (opts) => {
                         this.updateOptions(opts);
+                        this.saveOptions(opts);
                     }).show();
                 },
             }],
@@ -133,6 +134,23 @@ export default class GpxMap {
         if (themeName !== 'No map') {
             this.mapTiles = leaflet.tileLayer.provider(themeName);
             this.mapTiles.addTo(this.map, {detectRetina: true});
+        }
+    }
+
+    saveOptions(opts) {
+        window.localStorage.setItem('options', JSON.stringify(opts));
+    }
+
+    restoreSavedOptions() {
+        if (window.localStorage.getItem('options') === null) {
+            return;
+        }
+
+        let opts = window.localStorage.getItem('options');
+        opts = JSON.parse(opts);
+
+        if (typeof opts === 'object') {
+            this.updateOptions(opts);
         }
     }
 

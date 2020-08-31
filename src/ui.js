@@ -388,13 +388,25 @@ export function showModal(type) {
 }
 
 
+const INTRO_MODAL_SEEN_KEY = 'intro-modal-seen';
+
 export function initialize(map) {
-    let modal = showModal('help');
+    // We don't need to show the help modal every time, only the first
+    // time the user sees the page.
+    let displayIntroModal = true;
+
+    if (window.sessionStorage.getItem(INTRO_MODAL_SEEN_KEY) !== null) {
+        displayIntroModal = false;
+    } else {
+        window.sessionStorage.setItem(INTRO_MODAL_SEEN_KEY, 'true');
+    }
+
+
+    let modal = displayIntroModal ? showModal('help') : null;
 
     window.addEventListener('dragover', handleDragOver, false);
-
     window.addEventListener('drop', e => {
-        if (!modal.destroyed) {
+        if (displayIntroModal && !modal.destroyed) {
             modal.destroy();
             modal.destroyed = true;
         }
