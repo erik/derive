@@ -26,7 +26,7 @@ function extractGPXTracks(gpx) {
 
         trk.trkseg.forEach(trkseg => {
             let points = [];
-            for (let trkpt of trkseg.trkpt) {
+            for (let trkpt of trkseg.trkpt || []) {
                 if (trkpt.time && typeof trkpt.time[0] === 'string') {
                     timestamp = new Date(trkpt.time[0]);
                 }
@@ -52,7 +52,7 @@ function extractGPXTracks(gpx) {
         let name = rte.name && rte.name.length > 0 ? rte.name[0] : 'untitled';
         let timestamp;
         let points = [];
-        for (let pt of rte.rtept) {
+        for (let pt of rte.rtept || []) {
             if (pt.time && typeof pt.time[0] === 'string') {
                 timestamp = new Date(pt.time[0]);
             }
@@ -78,12 +78,12 @@ function extractTCXTracks(tcx, name) {
 
     const parsedTracks = [];
     for (const act of tcx.Activities[0].Activity) {
-        for (const lap of act.Lap) {
+        for (const lap of act.Lap || []) {
             let trackPoints = lap.Track[0].Trackpoint.filter(it => it.Position);
             let timestamp;
             let points = []
 
-            for (let trkpt of trackPoints) {
+            for (let trkpt of trackPoints || []) {
                 if (trkpt.Time && typeof trkpt.Time[0] === 'string') {
                     timestamp = new Date(trkpt.Time[0]);
                 }
