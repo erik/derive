@@ -42,7 +42,9 @@ function extractGPXTracks(gpx) {
                 }
             }
 
-            parsedTracks.push({timestamp, points, name});
+            if (points.length > 0) {
+                parsedTracks.push({timestamp, points, name});
+            }
         });
     });
 
@@ -60,7 +62,9 @@ function extractGPXTracks(gpx) {
             });
         }
 
-        parsedTracks.push({timestamp, points, name});
+        if (points.length > 0) {
+            parsedTracks.push({timestamp, points, name});
+        }
     });
 
     return parsedTracks;
@@ -91,7 +95,9 @@ function extractTCXTracks(tcx, name) {
                 });
             }
 
-            parsedTracks.push({timestamp, points, name});
+            if (points.length > 0) {
+                parsedTracks.push({timestamp, points, name});
+            }
         }
     }
 
@@ -117,7 +123,7 @@ function extractFITTracks(fit, name) {
         record.timestamp && (timestamp = record.timestamp);
     }
 
-    return [{timestamp, points, name}];
+    return points.length > 0 ? [{timestamp, points, name}] : [];
 }
 
 
