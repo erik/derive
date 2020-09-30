@@ -79,11 +79,14 @@ function extractTCXTracks(tcx, name) {
     const parsedTracks = [];
     for (const act of tcx.Activities[0].Activity) {
         for (const lap of act.Lap || []) {
+            if (!lap.Track || lap.Track.length === 0) {
+                continue;
+            }
             let trackPoints = lap.Track[0].Trackpoint.filter(it => it.Position);
             let timestamp;
             let points = []
 
-            for (let trkpt of trackPoints || []) {
+            for (let trkpt of trackPoints) {
                 if (trkpt.Time && typeof trkpt.Time[0] === 'string') {
                     timestamp = new Date(trkpt.Time[0]);
                 }
