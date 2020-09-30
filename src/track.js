@@ -26,7 +26,7 @@ function extractGPXTracks(gpx) {
 
         trk.trkseg.forEach(trkseg => {
             let points = [];
-            for (let trkpt of trkseg.trkpt) {
+            for (let trkpt of trkseg.trkpt || []) {
                 if (trkpt.time && typeof trkpt.time[0] === 'string') {
                     timestamp = new Date(trkpt.time[0]);
                 }
@@ -42,7 +42,9 @@ function extractGPXTracks(gpx) {
                 }
             }
 
-            parsedTracks.push({timestamp, points, name});
+            if (points.length > 0) {
+                parsedTracks.push({timestamp, points, name});
+            }
         });
     });
 
@@ -50,7 +52,7 @@ function extractGPXTracks(gpx) {
         let name = rte.name && rte.name.length > 0 ? rte.name[0] : 'untitled';
         let timestamp;
         let points = [];
-        for (let pt of rte.rtept) {
+        for (let pt of rte.rtept || []) {
             if (pt.time && typeof pt.time[0] === 'string') {
                 timestamp = new Date(pt.time[0]);
             }
@@ -60,7 +62,9 @@ function extractGPXTracks(gpx) {
             });
         }
 
-        parsedTracks.push({timestamp, points, name});
+        if (points.length > 0) {
+            parsedTracks.push({timestamp, points, name});
+        }
     });
 
     return parsedTracks;
@@ -74,7 +78,10 @@ function extractTCXTracks(tcx, name) {
 
     const parsedTracks = [];
     for (const act of tcx.Activities[0].Activity) {
-        for (const lap of act.Lap) {
+        for (const lap of act.Lap || []) {
+            if (!lap.Track || lap.Track.length === 0) {
+                continue;
+            }
             let trackPoints = lap.Track[0].Trackpoint.filter(it => it.Position);
             let timestamp;
             let points = []
@@ -91,7 +98,9 @@ function extractTCXTracks(tcx, name) {
                 });
             }
 
-            parsedTracks.push({timestamp, points, name});
+            if (points.length > 0) {
+                parsedTracks.push({timestamp, points, name});
+            }
         }
     }
 
@@ -117,7 +126,7 @@ function extractFITTracks(fit, name) {
         record.timestamp && (timestamp = record.timestamp);
     }
 
-    return [{timestamp, points, name}];
+    return points.length > 0 ? [{timestamp, points, name}] : [];
 }
 
 
