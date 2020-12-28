@@ -6,8 +6,8 @@ import 'leaflet-easybutton';
 import * as ui from './ui';
 
 
-// Los Angeles is the center of the universe
-const INIT_COORDS = [34.0522, -118.243];
+// Paris is the center of the universe
+const INIT_COORDS = [48.856614, 2.3522219];
 
 
 const DEFAULT_OPTIONS = {
