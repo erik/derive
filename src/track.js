@@ -8,7 +8,7 @@
 import xml2js from 'xml2js';
 import FitParser from 'fit-file-parser';
 import Pako from 'pako';
-
+import IGCParser from 'igc-parser';
 
 const parser = new xml2js.Parser();
 
@@ -129,6 +129,21 @@ function extractFITTracks(fit, name) {
     return points.length > 0 ? [{timestamp, points, name}] : [];
 }
 
+function extractIGCTracks(igc) {
+  debugger;
+  const points = [];
+  let timestamp = null;
+  for (const fix of igc.fixes) {
+    points.push({
+        lat: fix.latitude,
+        lng: fix.longitude,
+        // Other available fields: pressureAltitude, gpsAltitude, etc.
+    });
+    timestamp = timestamp || new Date(fix.timestamp);
+  }
+  const name = "igc";
+  return points.length > 0 ? [{timestamp, points, name}] : [];
+}
 
 function readFile(file, encoding, isGzipped) {
     return new Promise((resolve, reject) => {
@@ -189,6 +204,12 @@ export default function extractTracks(file) {
                         resolve(extractFITTracks(result, strippedName));
                     }
                 });
+            }));
+
+    case 'igc':
+        return readFile(file, 'text', isGzipped)
+            .then(textContents => new Promise((resolve, reject) => {
+                resolve(extractIGCTracks(IGCParser.parse(textContents)));
             }));
 
     default:
