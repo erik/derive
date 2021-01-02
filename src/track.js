@@ -141,7 +141,7 @@ function extractIGCTracks(igc) {
     });
     timestamp = timestamp || new Date(fix.timestamp);
   }
-  const name = "igc";
+  const name = 'igc';
   return points.length > 0 ? [{timestamp, points, name}] : [];
 }
 
@@ -208,7 +208,7 @@ export default function extractTracks(file) {
 
     case 'igc':
         return readFile(file, 'text', isGzipped)
-            .then(textContents => new Promise((resolve, reject) => {
+            .then(textContents => new Promise((resolve) => {
                 resolve(extractIGCTracks(IGCParser.parse(textContents, {lenient: true})));
             }));
 
