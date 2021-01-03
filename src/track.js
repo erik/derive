@@ -130,7 +130,6 @@ function extractFITTracks(fit, name) {
 }
 
 function extractIGCTracks(igc) {
-  debugger;
   const points = [];
   let timestamp = null;
   for (const fix of igc.fixes) {
