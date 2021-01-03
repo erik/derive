@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - node
 install:
-  - npm install
+  - npm ci
   - npm install -g eslint
 script:
   - npm run lint
