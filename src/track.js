@@ -207,8 +207,12 @@ export default function extractTracks(file) {
 
     case 'igc':
         return readFile(file, 'text', isGzipped)
-            .then(textContents => new Promise((resolve) => {
-                resolve(extractIGCTracks(IGCParser.parse(textContents, {lenient: true})));
+            .then(textContents => new Promise((resolve, reject) => {
+                try {
+                    resolve(extractIGCTracks(IGCParser.parse(textContents, {lenient: true})));
+                } catch(err) {
+                    reject(err);
+                }
             }));
 
     default:
