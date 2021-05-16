@@ -24,7 +24,7 @@ const AVAILABLE_THEMES = [
 const MODAL_CONTENT = {
     help: `
 <h1>dérive</h1>
-<h4>Drag and drop one or more GPX/TCX/FIT/IGC files or JPEG images here.</h4>
+<h4>Drag and drop one or more GPX/TCX/FIT/IGC/SKIZ files or JPEG images here.</h4>
 <p>If you use Strava, go to your
 <a href="https://www.strava.com/athlete/delete_your_account">account download
 page</a> and click "Request your archive". You'll get an email containing a ZIP

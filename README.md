@@ -4,7 +4,7 @@
 
 Generate a heatmap from GPS tracks.
 
-Drag and drop one or more GPX/TCX/FIT/IGC files or JPEG images into the browser
+Drag and drop one or more GPX/TCX/FIT/IGC/SKIZ files or JPEG images into the browser
 window. No data is ever uploaded, everything is done client side.
 
 Loosely inspired by [The Passage Ride](http://thepassageride.com), which you

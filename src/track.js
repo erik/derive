@@ -9,6 +9,7 @@ import xml2js from 'xml2js';
 import FitParser from 'fit-file-parser';
 import Pako from 'pako';
 import IGCParser from 'igc-parser';
+import { parseSkizFile } from 'skiz-parser';
 
 const parser = new xml2js.Parser();
 
@@ -144,6 +145,23 @@ function extractIGCTracks(igc) {
   return points.length > 0 ? [{timestamp, points, name}] : [];
 }
 
+function extractSKIZTracks(skiz) {
+    const points = [];
+    let timestamp = null;
+
+    for (const node of skiz.trackNodes) {
+        points.push({
+            lat: node.latitude,
+            lng: node.longitude,
+        });
+
+        node.timestamp && (timestamp = node.timestamp);
+    }
+
+    const name = 'skiz';
+    return points.length > 0 ? [{timestamp, points, name}] : [];
+}
+
 function readFile(file, encoding, isGzipped) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -213,6 +231,18 @@ export default function extractTracks(file) {
                 } catch(err) {
                     reject(err);
                 }
+            }));
+
+    case 'skiz':
+        return readFile(file, 'binary', isGzipped)
+            .then(contents => new Promise((resolve, reject) => {
+                parseSkizFile(contents, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(extractSKIZTracks(result));
+                    }
+                });
             }));
 
     default:
