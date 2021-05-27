@@ -344,7 +344,7 @@ export default class GpxMap {
                     // nearest 1/10 (by multiplying by 10, rounding and
                     // dividing), and reducing by removing duplicates (when two
                     // consecutive points have rounded to the same value)
-                    let pts = track.getLatLngs().map(ll =>
+                    let pts = track.points.map(ll =>
                             this.map.project(ll)
                                     .multiplyBy(scale*10)
                                     .round()
@@ -366,9 +366,9 @@ export default class GpxMap {
                     let path = leaflet.SVG.pointsToPath([pts], false);
                     let el = leaflet.SVG.create('path');
 
-                    el.setAttribute('stroke', track.options.color);
-                    el.setAttribute('stroke-opacity', track.options.opacity);
-                    el.setAttribute('stroke-width', scale * track.options.weight);
+                    el.setAttribute('stroke', track.line.options.color);
+                    el.setAttribute('stroke-opacity', track.line.options.opacity);
+                    el.setAttribute('stroke-width', scale * track.line.options.weight);
                     el.setAttribute('stroke-linecap', 'round');
                     el.setAttribute('stroke-linejoin', 'round');
                     el.setAttribute('fill', 'none');
