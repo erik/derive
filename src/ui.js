@@ -10,7 +10,6 @@ const AVAILABLE_THEMES = [
     'CartoDB.PositronNoLabels',
     'Esri.WorldImagery',
     'OpenStreetMap.Mapnik',
-    'OpenStreetMap.BlackAndWhite',
     'OpenTopoMap',
     'Stamen.Terrain',
     'Stamen.TerrainBackground',
