@@ -17,6 +17,7 @@ const AVAILABLE_THEMES = [
     'Stamen.TonerLite',
     'Stamen.TonerBackground',
     'Stamen.Watercolor',
+    'CyclOSM',
     'No map',
 ];
 
