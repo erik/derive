@@ -1,0 +1,32 @@
+name: Build gh-pages
+
+on:
+  push:
+    branches: [ master ]
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Read NVM version
+      run: echo "##[set-output name=NVMRC;]$(cat .nvmrc)"
+      id: nvm
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: "${{ steps.nvm.outputs.NVMRC }}"
+    - run: npm ci
+    - run: npm run build
+
+    # I am too lazy to change my webpack config, so do it this way
+    - name: Copy Files
+      run: |
+        mkdir -p build/
+        cp style.css index.html bundle.js build/
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: build/
