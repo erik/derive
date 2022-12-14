@@ -2,6 +2,10 @@ import 'babel-polyfill';
 import picoModal from 'picomodal';
 import extractTracks from './track';
 import Image from './image';
+//import { promises as fsPromises } from 'fs';
+
+
+
 
 const AVAILABLE_THEMES = [
     'CartoDB.DarkMatter',
@@ -54,6 +58,7 @@ href="http://library.nothingness.org/articles/SI/en/display/314">[1]</a></cite>
         <select name="format">
             <option selected value="png">PNG</option>
             <option value="svg">SVG (no background map)</option>
+			<option value="geojson">JSON</option>
         </select>
     </div>
 
@@ -74,6 +79,7 @@ function handleFileSelect(map, evt) {
 
     let tracks = [];
     let files = Array.from(evt.dataTransfer.files);
+
     let modal = buildUploadModal(files.length);
 
     modal.show();
@@ -401,7 +407,36 @@ export function showModal(type) {
 }
 
 
+export function GetUrlParameter(parameter) {
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	const Param = urlParams.get(parameter)
+	return Param;
+	}
+	
 const INTRO_MODAL_SEEN_KEY = 'intro-modal-seen';
+	
+
+export function HandleJsonData(data,map)
+{
+	//console.log(data);
+	let jsonArray = JSON.parse(data);
+	
+	for(let i = 0; i < jsonArray.length; i++) {
+		console.log(jsonArray[i]);
+	          //  tracks.push(element);
+	map.addTrack(jsonArray[i]);
+}
+}
+
+async function handleJson(link,map)
+{
+			const response = await fetch(link);
+		const data = await response.text();
+		console.log(data);
+		HandleJsonData(data,map);
+}
+
 
 export function initialize(map) {
     // We don't need to show the help modal every time, only the first
@@ -413,7 +448,33 @@ export function initialize(map) {
     } else {
         window.sessionStorage.setItem(INTRO_MODAL_SEEN_KEY, 'true');
     }
+	
+	let jsonLink = GetUrlParameter('mapdata');
+	//let	AccesKey = GetUrlParameter('acces');
+	
+	if(jsonLink !== '' /*&& AccesKey !== ''*/)
+	{	
+		
+	handleJson(jsonLink,map);
+	//	let req = new XMLHttpRequest();
 
+//		req.onreadystatechange = () => {
+//		if (req.readyState === XMLHttpRequest.DONE) {
+//			HandleJsonData(req.responseText,map);
+//			//console.log(req.responseText);
+//		}
+//		};
+//
+//	req.open('GET', jsonLink , true);
+//	req.setRequestHeader('X-Master-Key', AccesKey);
+//	req.setRequestHeader('X-Bin-Meta',false);
+//	
+//	req.send();
+	
+	
+	}
+
+	
 
     let modal = displayIntroModal ? showModal('help') : null;
 

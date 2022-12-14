@@ -247,6 +247,7 @@ export default class GpxMap {
 
         this.tracks.push(Object.assign({line, visible: true}, track));
     }
+	
 
     async markerClick(image) {
         const latitude = await image.latitude();
@@ -304,6 +305,7 @@ export default class GpxMap {
             this.clearScroll();
         }
     }
+   
 
     screenshot(format, domNode) {
         leafletImage(this.map, (err, canvas) => {
@@ -313,7 +315,7 @@ export default class GpxMap {
 
             let link = document.createElement('a');
 
-            if (format === 'png') {
+			if (format === 'png') {
                 link.download = 'derive-export.png';
                 link.innerText = 'Download as PNG';
 
@@ -386,6 +388,31 @@ export default class GpxMap {
                 let blob = new Blob([xml], {type: 'application/octet-stream'});
                 link.href = URL.createObjectURL(blob);
 
+                domNode.innerText = '';
+                domNode.appendChild(link);
+            }
+			else if (format === 'geojson') {
+                link.download = 'derive-export.geojson';
+                link.innerText = 'Download as GeoJSON';
+
+                const geojson = {
+                     type: 'mapData',
+                     features: 
+					this.tracks.map(track => {
+                        return {
+                                points: track.points,
+
+                            properties: {
+                                color: track.line.options.color
+                            }
+                        };
+                    })
+                };
+
+                const blob = new Blob([JSON.stringify(geojson)],
+                                      {type: 'application/json'});
+
+                link.href = URL.createObjectURL(blob);
                 domNode.innerText = '';
                 domNode.appendChild(link);
             }
