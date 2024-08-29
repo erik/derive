@@ -9,7 +9,7 @@ function degMinSecToDecimal(dms, isNegative) {
 }
 
 export default class Image {
-    constructor(imageFile) {
+    constructor(public imageFile: any) {
         this.imageFile = imageFile;
     }
 
