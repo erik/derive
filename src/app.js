@@ -1,5 +1,3 @@
-import '../style.css';
-
 import GpxMap from './map';
 import {initialize} from './ui';
 
