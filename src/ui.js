@@ -1,4 +1,3 @@
-import 'babel-polyfill';
 import picoModal from 'picomodal';
 import extractTracks from './track';
 import Image from './image';
