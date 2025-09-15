@@ -168,13 +168,24 @@ function readFile(file, encoding, isGzipped) {
         reader.onload = (e) => {
             const result = e.target.result;
             try {
-                return resolve(isGzipped ? Pako.inflate(result) : result);
+                if (isGzipped) {
+                    const inflated = Pako.inflate(result);
+                    // For text files, convert the Uint8Array back to string
+                    if (encoding === 'text') {
+                        const decoder = new TextDecoder('utf-8');
+                        return resolve(decoder.decode(inflated));
+                    } else {
+                        return resolve(inflated);
+                    }
+                } else {
+                    return resolve(result);
+                }
             } catch (e) {
                 return reject(e);
             }
         };
 
-        if (encoding === 'binary') {
+        if (encoding === 'binary' || isGzipped) {
             reader.readAsArrayBuffer(file);
         } else {
             reader.readAsText(file);
