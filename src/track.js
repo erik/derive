@@ -7,7 +7,6 @@
 
 import xml2js from 'xml2js';
 import FitParser from 'fit-file-parser';
-import Pako from 'pako';
 import IGCParser from 'igc-parser';
 import { parseSkizFile } from 'skiz-parser';
 
@@ -162,27 +161,18 @@ function extractSKIZTracks(skiz) {
     return points.length > 0 ? [{timestamp, points, name}] : [];
 }
 
-function readFile(file, encoding, isGzipped) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(reader.error);
-        reader.onload = (event) => {
-            try {
-                let data = event.target.result;
-                if (isGzipped) {
-                    data = Pako.inflate(data);
-                }
-                if (encoding === 'text') {
-                    data = new TextDecoder().decode(data);
-                }
-                resolve(data);
-            } catch (e) {
-                reject(e);
-            }
-        };
+function decompressFile(file) {
+    const stream = file.stream().pipeThrough(new window.DecompressionStream('gzip'));
+    return new Response(stream);
+}
 
-        reader.readAsArrayBuffer(file);
-    });
+async function readFile(file, encoding, isGzipped) {
+    const stream = isGzipped ? decompressFile(file) : file;
+    const buffer = await stream.arrayBuffer();
+
+   return (encoding === 'text')
+      ? new TextDecoder().decode(buffer)
+      : buffer;
 }
 
 export default function extractTracks(file) {
