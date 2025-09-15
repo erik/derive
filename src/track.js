@@ -130,18 +130,18 @@ function extractFITTracks(fit, name) {
 }
 
 function extractIGCTracks(igc) {
-  const points = [];
-  let timestamp = null;
-  for (const fix of igc.fixes) {
-    points.push({
-        lat: fix.latitude,
-        lng: fix.longitude,
+    const points = [];
+    let timestamp = null;
+    for (const fix of igc.fixes) {
+        points.push({
+            lat: fix.latitude,
+            lng: fix.longitude,
         // Other available fields: pressureAltitude, gpsAltitude, etc.
-    });
-    timestamp = timestamp || new Date(fix.timestamp);
-  }
-  const name = 'igc';
-  return points.length > 0 ? [{timestamp, points, name}] : [];
+        });
+        timestamp = timestamp || new Date(fix.timestamp);
+    }
+    const name = 'igc';
+    return points.length > 0 ? [{timestamp, points, name}] : [];
 }
 
 function extractSKIZTracks(skiz) {
@@ -170,9 +170,9 @@ async function readFile(file, encoding, isGzipped) {
     const stream = isGzipped ? decompressFile(file) : file;
     const buffer = await stream.arrayBuffer();
 
-   return (encoding === 'text')
-      ? new TextDecoder().decode(buffer)
-      : buffer;
+    return (encoding === 'text')
+        ? new TextDecoder().decode(buffer)
+        : buffer;
 }
 
 export default function extractTracks(file) {

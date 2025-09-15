@@ -324,16 +324,16 @@ export function buildSettingsModal(tracks, opts, updateCallback) {
     };
 
     modal.afterClose((modal) => {
-      applyOptions();
-      modal.destroy();
+        applyOptions();
+        modal.destroy();
     });
 
     modal.afterCreate(() => {
-      let elements = document.getElementById('settings').elements;
-      for (let opt of ['theme', 'color', 'weight', 'opacity', 'markerColor',
-                       'markerWeight', 'markerOpacity', 'markerRadius']) {
-        elements[opt].addEventListener('change', applyOptions);
-      }
+        let elements = document.getElementById('settings').elements;
+        for (let opt of ['theme', 'color', 'weight', 'opacity', 'markerColor',
+            'markerWeight', 'markerOpacity', 'markerRadius']) {
+            elements[opt].addEventListener('change', applyOptions);
+        }
     });
 
 

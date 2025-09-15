@@ -345,10 +345,10 @@ export default class GpxMap {
                     // dividing), and reducing by removing duplicates (when two
                     // consecutive points have rounded to the same value)
                     let pts = track.points.map(ll =>
-                            this.map.project(ll)
-                                    .multiplyBy(scale*10)
-                                    .round()
-                                    .divideBy(10)
+                        this.map.project(ll)
+                            .multiplyBy(scale*10)
+                            .round()
+                            .divideBy(10)
                     ).reduce((acc,next) => {
                         if (acc.length === 0 ||
                                 acc[acc.length-1].x !== next.x ||
