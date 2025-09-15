@@ -165,31 +165,23 @@ function extractSKIZTracks(skiz) {
 function readFile(file, encoding, isGzipped) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = (e) => {
-            const result = e.target.result;
+        reader.onerror = () => reject(reader.error);
+        reader.onload = (event) => {
             try {
+                let data = event.target.result;
                 if (isGzipped) {
-                    const inflated = Pako.inflate(result);
-                    // For text files, convert the Uint8Array back to string
-                    if (encoding === 'text') {
-                        const decoder = new TextDecoder('utf-8');
-                        return resolve(decoder.decode(inflated));
-                    } else {
-                        return resolve(inflated);
-                    }
-                } else {
-                    return resolve(result);
+                    data = Pako.inflate(data);
                 }
+                if (encoding === 'text') {
+                    data = new TextDecoder().decode(data);
+                }
+                resolve(data);
             } catch (e) {
-                return reject(e);
+                reject(e);
             }
         };
 
-        if (encoding === 'binary' || isGzipped) {
-            reader.readAsArrayBuffer(file);
-        } else {
-            reader.readAsText(file);
-        }
+        reader.readAsArrayBuffer(file);
     });
 }
 
