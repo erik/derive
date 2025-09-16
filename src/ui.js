@@ -1,4 +1,3 @@
-import 'babel-polyfill';
 import picoModal from 'picomodal';
 import extractTracks from './track';
 import Image from './image';
@@ -324,16 +323,16 @@ export function buildSettingsModal(tracks, opts, updateCallback) {
     };
 
     modal.afterClose((modal) => {
-      applyOptions();
-      modal.destroy();
+        applyOptions();
+        modal.destroy();
     });
 
     modal.afterCreate(() => {
-      let elements = document.getElementById('settings').elements;
-      for (let opt of ['theme', 'color', 'weight', 'opacity', 'markerColor',
-                       'markerWeight', 'markerOpacity', 'markerRadius']) {
-        elements[opt].addEventListener('change', applyOptions);
-      }
+        let elements = document.getElementById('settings').elements;
+        for (let opt of ['theme', 'color', 'weight', 'opacity', 'markerColor',
+            'markerWeight', 'markerOpacity', 'markerRadius']) {
+            elements[opt].addEventListener('change', applyOptions);
+        }
     });
 
 
@@ -375,13 +374,13 @@ export function buildFilterModal(tracks, filters, finishCallback) {
 
     modal.afterClose((modal) => {
         let elements = document.getElementById('settings').elements;
-        let filters = Object.assign({}, filters);
+        let updated = Object.assign({}, filters);
 
         for (let key of ['minDate', 'maxDate']) {
-            filters[key] = elements[key].value;
+            updated[key] = elements[key].value;
         }
 
-        finishCallback(filters);
+        finishCallback(updated);
         modal.destroy();
     });
 
