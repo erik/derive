@@ -216,6 +216,17 @@ export function buildSettingsModal(tracks, opts, updateCallback) {
         return `<option ${selected} value="${t}">${t}</option>`;
     });
 
+    let activityColorRows = Object.keys(opts.activityColors).map((activity) => {
+        let capitalizedActivity =
+                activity.charAt(0).toUpperCase() + activity.slice(1);
+        return `
+        <div class="row">
+            <label>${capitalizedActivity}</label>
+            <input name="activityColor_${activity}" type="color" value="${opts.activityColors[activity]}">
+        </div>`;
+    })
+        .join('');
+
     let modalContent = `
 <h3>Options</h3>
 
@@ -247,6 +258,11 @@ export function buildSettingsModal(tracks, opts, updateCallback) {
                 value=${opts.lineOptions.weight}>
         </div>
 
+    </fieldset>
+
+    <fieldset class="form-group">
+        <legend>Activity Colors</legend>
+        ${activityColorRows}
     </fieldset>
 
     <fieldset class="form-group">
@@ -310,10 +326,24 @@ export function buildSettingsModal(tracks, opts, updateCallback) {
             options.lineOptions[opt] = elements[opt].value;
         }
 
-        for (let opt of ['markerColor', 'markerWeight', 'markerOpacity', 'markerRadius']) {
+        for (let opt of [
+            'markerColor',
+            'markerWeight',
+            'markerOpacity',
+            'markerRadius',
+        ]) {
             let optionName = opt.replace('marker', '').toLowerCase();
             options.markerOptions[optionName] = elements[opt].value;
         }
+
+        // Handle activity color inputs
+        options.activityColors = {...opts.activityColors};
+        Object.keys(opts.activityColors).forEach((activity) => {
+            let elementName = `activityColor_${activity}`;
+            if (elements[elementName]) {
+                options.activityColors[activity] = elements[elementName].value;
+            }
+        });
 
         for (let opt of ['overrideExisting', 'detectColors']) {
             options.lineOptions[opt] = elements[opt].checked;
@@ -329,12 +359,26 @@ export function buildSettingsModal(tracks, opts, updateCallback) {
 
     modal.afterCreate(() => {
         let elements = document.getElementById('settings').elements;
-        for (let opt of ['theme', 'color', 'weight', 'opacity', 'markerColor',
-            'markerWeight', 'markerOpacity', 'markerRadius']) {
-            elements[opt].addEventListener('change', applyOptions);
+        let baseOptions = [
+            'theme',
+            'color',
+            'weight',
+            'opacity',
+            'markerColor',
+            'markerWeight',
+            'markerOpacity',
+            'markerRadius',
+        ];
+
+        let activityColorOptions = Object.keys(opts.activityColors).map(a => `activityColor_${a}`);
+        let allOptions = baseOptions.concat(activityColorOptions);
+
+        for (let opt of allOptions) {
+            if (elements[opt]) {
+                elements[opt].addEventListener('change', applyOptions);
+            }
         }
     });
-
 
     return modal;
 }

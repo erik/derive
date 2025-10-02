@@ -43,7 +43,7 @@ function extractGPXTracks(gpx) {
 
     for (const trk of tracks) {
         const name = getTextContent(trk, 'name') || 'untitled';
-        const activityType = getTextContent(trk, 'type') || null;
+        const activityType = getTextContent(trk, 'type')?.toLowerCase() || null;
         let timestamp;
 
         for (const trkseg of queryElements(trk, 'trkseg')) {
@@ -113,7 +113,7 @@ function extractTCXTracks(tcx, name) {
     }
 
     const parsedTracks = [];
-    const activityType = activities[0].getAttribute('Sport') || null;
+    const activityType = activities[0].getAttribute('Sport')?.toLowerCase() || null;
 
     for (const activity of activities) {
         const laps = queryElements(activity, 'Lap');
