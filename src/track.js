@@ -11,7 +11,7 @@ import { parseSkizFile } from 'skiz-parser';
 
 function parseXML(xmlString) {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(xmlString, 'text/xml');
+    const doc = parser.parseFromString(xmlString.trimStart(), 'text/xml');
 
     const parseError = doc.querySelector('parsererror');
     if (parseError) {
