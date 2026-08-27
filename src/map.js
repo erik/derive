@@ -252,13 +252,13 @@ export default class GpxMap {
 
             // Legacy support for file-ending colors:
             if (/-(Hike|Walk)\.gpx/.test(track.filename)) {
-                lineOptions.color = ACTIVITY_COLORS["hiking"];
+                lineOptions.color = ACTIVITY_COLORS['hiking'];
             } else if (/-Run\.gpx/.test(track.filename)) {
-                lineOptions.color = ACTIVITY_COLORS["running"];
+                lineOptions.color = ACTIVITY_COLORS['running'];
             } else if (/-Ride\.gpx/.test(track.filename)) {
-                lineOptions.color = ACTIVITY_COLORS["cycling"];
+                lineOptions.color = ACTIVITY_COLORS['cycling'];
             } else if (/-Swim\.gpx/.test(track.filename)) {
-                lineOptions.color = ACTIVITY_COLORS["swimming"];
+                lineOptions.color = ACTIVITY_COLORS['swimming'];
             }
         }
 
