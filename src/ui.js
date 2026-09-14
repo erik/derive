@@ -90,8 +90,8 @@ function handleFileSelect(map, evt) {
             track.filename = file.name;
             tracks.push(track);
             map.addTrack(track);
-            modal.addSuccess();
         }
+        modal.addSuccess();
     };
 
     const handleFile = async file => {
