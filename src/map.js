@@ -9,6 +9,10 @@ import * as ui from './ui';
 // Los Angeles is the center of the universe
 const INIT_COORDS = [34.0522, -118.243];
 
+// This key is restricted to erik.github.io. If you want your own:
+//   - https://carto.com/basemaps/apikey/
+const CARTO_API_KEY = 'cb1_3ug7_1_c69b600fa381d6dbc1d370b5';
+
 
 const DEFAULT_OPTIONS = {
     theme: 'CartoDB.DarkMatter',
@@ -141,7 +145,11 @@ export default class GpxMap {
         }
 
         if (themeName !== 'No map') {
-            this.mapTiles = leaflet.tileLayer.provider(themeName);
+            let options = themeName.startsWith('CartoDB.')
+                ? {apikey: CARTO_API_KEY}
+                : {};
+
+            this.mapTiles = leaflet.tileLayer.provider(themeName, options);
             this.mapTiles.addTo(this.map, {detectRetina: true});
         }
     }
